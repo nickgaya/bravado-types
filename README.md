@@ -3,7 +3,23 @@
 Tool to generate MyPy type stubs for Bravado-generated classes to support
 static type checking.
 
-**Note:** This project is not affiliated with Yelp or the Bravado project.
+## Motivation
+
+[Bravado](https://github.com/Yelp/Bravado) is an excellent library for
+interacting with APIs defined by Swagger schemas. Unlike some Swagger-based
+tools that generate code at build-time that can be integrated with a given
+project, Bravado parses the schema at runtime and dynamically generates classes
+to represent the data types defined by the schema. This means that static
+type-checking tools like MyPy have limited usefulness since attributes
+and method signatures are not known until runtime.
+
+Bravado-types attempts to improve this situation by using Bravado at build time
+to parse the schema and output type information for static type checking
+purposes. Using the generated type stubs, MyPy can detect errors such as
+calling a nonexistent operation method on a resource, failing to specify a
+required operation parameter, or assigning a wrongly-typed value to a model
+attribute. Assuming the schema does not change, this allows for greater
+confidence that the code is using the client correctly.
 
 ## Usage
 
@@ -147,3 +163,5 @@ complicated.  This tool simply annotates such values with the `Any` type.
 
 This project uses Tox to run tests and other self-checks.  Unit tests are
 written with the Pytest framework.
+
+**Note:** This project is not affiliated with Yelp or the Bravado project.
