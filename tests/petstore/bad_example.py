@@ -12,5 +12,6 @@ pet2 = Pet(name=123, photoUrls=[])  # error: Argument "name" to "Pet" has incomp
 pet.firstName  # error: "Pet" has no attribute "firstName"
 client.pat.addPet(body=pet)  # error: "PetStoreClient" has no attribute "pat"
 client.user.addPet(body=pet)  # error: "userResource" has no attribute "addPet"
+client.pet.findByStatus(status=['available'])  # error: "petResource" has no attribute "findByStatus"; maybe "findPetsByStatus"?
 client.user.createUser()  # error: Missing named argument "body" for "__call__" of "createUserOperation"
 client.user.createUser(body=pet)  # error: Argument "body" to "__call__" of "createUserOperation" has incompatible type "Pet"; expected "User"
