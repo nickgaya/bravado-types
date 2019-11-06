@@ -32,7 +32,7 @@ runtime behavior of generated clients.
 
 To install the latest master version directly from GitHub:
 
-    pip install https://github.com/nickgaya/bravado-types/tarball/master
+    pip install -U git+https://github.com/nickgaya/bravado-types.git
 
 ## Usage
 
