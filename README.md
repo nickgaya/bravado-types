@@ -98,8 +98,7 @@ annotations.
         return pet.name
 
 Generated model, resource, and operation types are only used for static type
-checking and cannot be used for runtime interactions. (The actual runtime
-values are placeholder objects that will raise a `RuntimeError` if misused.)
+checking and must not be used for runtime interactions.
 
     # Placeholder for static type-checking
     from petstore import Pet as TPet
