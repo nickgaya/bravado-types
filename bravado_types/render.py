@@ -6,6 +6,7 @@ import pkg_resources
 from mako.lookup import TemplateLookup
 
 from bravado_types.data_model import SpecInfo, ModelInfo, TypeInfo
+from bravado_types.types import ARRAY_TYPE_TEMPLATE
 from bravado_types.metadata import Metadata
 
 DEFAULT_CLIENT_TYPE_FORMAT = "{}Client"
@@ -23,6 +24,15 @@ class ResponseTypes(str, Enum):
 DEFAULT_RESPONSE_TYPES = ResponseTypes.success
 
 
+class ArrayTypes(str, Enum):
+    list = 'list'
+    sequence = 'sequence'
+    union = 'union'
+
+
+DEFAULT_ARRAY_TYPES = ArrayTypes.list
+
+
 class RenderConfig:
     def __init__(
         self,
@@ -33,6 +43,7 @@ class RenderConfig:
         resource_type_format: str = None,
         operation_type_format: str = None,
         model_type_format: str = None,
+        array_types: ArrayTypes = None,
         response_types: ResponseTypes = None,
         model_inheritance: bool = False,
         custom_templates_dir: str = None,
@@ -47,6 +58,11 @@ class RenderConfig:
         :param operation_type_format: Format string for generated operation
             types.
         :param model_type_format: Format string for generated model types.
+        :param array_types: ArrayTypes member indicating how to represent array
+            types in the schema.
+            - list: Use typing.List. This is the default behavior.
+            - sequence: Use typing.Sequence
+            - union: use a union of typing.List and typing.Tuple
         :param response_types: ResponseTypes enum member indicating how
             operation response types should be annotated. A value of 'success'
             indicates that response types should be a union of defined response
@@ -79,6 +95,7 @@ class RenderConfig:
             operation_type_format or DEFAULT_OPERATION_TYPE_FORMAT
         self.model_type_format = model_type_format or DEFAULT_MODEL_TYPE_FORMAT
 
+        self.array_types = array_types or DEFAULT_ARRAY_TYPES
         self.response_types = response_types or DEFAULT_RESPONSE_TYPES
 
         self.model_inheritance = model_inheritance
@@ -108,8 +125,23 @@ class RenderConfig:
         type_str = (self.model_type(type_info.base_type) if type_info.is_model
                     else type_info.base_type)
         for outer in type_info.outer:
+            if outer == ARRAY_TYPE_TEMPLATE:
+                outer = self.array_type_template
             type_str = outer.format(type_str)
         return type_str
+
+    @property
+    def array_type_template(self) -> str:
+        """Return type template string for array types"""
+        if self.array_types is ArrayTypes.list:
+            return 'typing.List[{}]'
+        elif self.array_types is ArrayTypes.sequence:
+            return 'typing.Sequence[{}]'
+        elif self.array_types is ArrayTypes.union:
+            return 'typing.Union[typing.List[{0}], typing.Tuple[{0}, ...]]'
+        else:
+            raise ValueError("Unexpected ArrayTypes value: "
+                             f"{self.array_types!r}")
 
 
 def black_postprocessor(py_file: str, pyi_file: str) -> None:

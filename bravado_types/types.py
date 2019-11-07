@@ -8,6 +8,9 @@ from bravado_core.spec import Spec
 
 from bravado_types.data_model import TypeInfo
 
+# Type template for array types
+ARRAY_TYPE_TEMPLATE = 'typing.List[{}]'
+
 # Map of Swagger primitive types to Python types
 SWAGGER_PRIMITIVE_TYPES = {
     'integer': 'int',
@@ -73,7 +76,7 @@ def _get_array_type_info(spec: Spec, schema: Dict[str, Any]) -> TypeInfo:
     :return: A TypeInfo for the schema.
     """
     item_type = get_type_info(spec, schema["items"])
-    return item_type.wrap('typing.Sequence[{}]')
+    return item_type.wrap(ARRAY_TYPE_TEMPLATE)
 
 
 def _get_object_type_info(spec: Spec, schema: Dict[str, Any]) -> TypeInfo:

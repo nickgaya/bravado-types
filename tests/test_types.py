@@ -8,44 +8,44 @@ from bravado_types.types import get_type_info, get_response_type_info
 @pytest.mark.parametrize(('schema', 'expected'), [
     pytest.param(
         {'$ref': '#/definitions/Array'},
-        TypeInfo('typing.Any', 'typing.Sequence[{}]'),
+        TypeInfo('typing.Any', 'typing.List[{}]'),
         id="array_ref",
     ),
     pytest.param(
         {'type': 'array', 'items': {}},
-        TypeInfo('typing.Any', 'typing.Sequence[{}]'),
+        TypeInfo('typing.Any', 'typing.List[{}]'),
         id="array_of_any",
     ),
     pytest.param(
         {'type': 'array', 'items': {'type': 'integer'}},
-        TypeInfo('int', 'typing.Sequence[{}]'),
+        TypeInfo('int', 'typing.List[{}]'),
         id="array_of_int",
     ),
     pytest.param(
         {'type': 'array', 'items': {
             'type': 'array', 'items': {'type': 'string'}
         }},
-        TypeInfo('str', 'typing.Sequence[{}]', 'typing.Sequence[{}]'),
+        TypeInfo('str', 'typing.List[{}]', 'typing.List[{}]'),
         id="array_of_array_of_string",
     ),
     pytest.param(
         {'type': 'array', 'items': {'type': 'object'}},
-        TypeInfo('typing.Dict[str, typing.Any]', 'typing.Sequence[{}]'),
+        TypeInfo('typing.Dict[str, typing.Any]', 'typing.List[{}]'),
         id="array_of_object",
     ),
     pytest.param(
         {'type': 'array', 'items': {'$ref': '#/definitions/Object'}},
-        TypeInfo('Object', 'typing.Sequence[{}]', is_model=True),
+        TypeInfo('Object', 'typing.List[{}]', is_model=True),
         id="array_of_model_ref",
     ),
     pytest.param(
         {'type': 'array', 'items': {'type': 'string'}, 'x-nullable': True},
-        TypeInfo('str', 'typing.Sequence[{}]', 'typing.Optional[{}]'),
+        TypeInfo('str', 'typing.List[{}]', 'typing.Optional[{}]'),
         id="nullable_array",
     ),
     pytest.param(
         {'type': 'array', 'items': {'type': 'string', 'x-nullable': True}},
-        TypeInfo('str', 'typing.Optional[{}]', 'typing.Sequence[{}]'),
+        TypeInfo('str', 'typing.Optional[{}]', 'typing.List[{}]'),
         id="array_of_nullable",
     ),
     pytest.param(
@@ -202,7 +202,7 @@ def test_get_type_info(schema, expected):
         {'description': '...', 'schema': {
             'type': 'array', 'items': {'$ref': '#/definitions/Model'}
         }},
-        TypeInfo('Model', 'typing.Sequence[{}]', is_model=True),
+        TypeInfo('Model', 'typing.List[{}]', is_model=True),
         id="schema_list",
     ),
     pytest.param(

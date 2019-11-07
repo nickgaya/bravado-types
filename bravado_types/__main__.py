@@ -6,11 +6,13 @@ from bravado.client import SwaggerClient
 
 from bravado_types import generate_module
 from bravado_types.render import (
+    DEFAULT_ARRAY_TYPES,
     DEFAULT_CLIENT_TYPE_FORMAT,
     DEFAULT_MODEL_TYPE_FORMAT,
     DEFAULT_OPERATION_TYPE_FORMAT,
     DEFAULT_RESOURCE_TYPE_FORMAT,
     DEFAULT_RESPONSE_TYPES,
+    ArrayTypes,
     RenderConfig,
     ResponseTypes,
     black_postprocessor,
@@ -64,6 +66,14 @@ def main(args: Optional[Sequence[str]] = None) -> None:
     )
 
     parser.add_argument(
+        "--array-types",
+        choices=[at.value for at in ArrayTypes],
+        default=None,
+        help="Option for how array types should be represented."
+        f"Default {DEFAULT_ARRAY_TYPES.value!r}"
+    )
+
+    parser.add_argument(
         "--response-types",
         choices=[rt.value for rt in ResponseTypes],
         default=None,
@@ -103,6 +113,7 @@ def main(args: Optional[Sequence[str]] = None) -> None:
         resource_type_format=ns.resource_type_format,
         operation_type_format=ns.operation_type_format,
         model_type_format=ns.model_type_format,
+        array_types=ns.array_types,
         response_types=ns.response_types,
         custom_templates_dir=ns.custom_templates_dir,
         postprocessor=ns.postprocessor,

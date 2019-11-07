@@ -7,6 +7,7 @@
 - Define `bravado-types` CLI entry point
 - Use enum class for return_types config parameter
 - Refactor type representation in data model
+- Add configuration parameter for rendering array types
 
 ## 0.1.0
 

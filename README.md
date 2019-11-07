@@ -138,6 +138,19 @@ offers three different options for response type annotations, specified by the
 By default, bravado-types uses the `'success'` option as it is felt to be the
 most pragmatic option, although the least sound.
 
+### Array types
+
+Bravado allows either lists or tuples for values with `type: array` in the
+Swagger schema. We can represent this precisely in type stubs as
+`Union[List[T], Tuple[T, ...]]` but this is somewhat cumbersome. Another
+alternative would be to use `Sequence[T]`, but this has the downside that MyPy
+considers `str` a subtype of `Sequence[str]` and `bytes` a subtype of
+`Sequence[int]`.  A third alternative would be to use `List[T]`. This is more
+restrictive than necessary, but also simpler.
+
+We provide a configuration parameter, `array_types` to specify the desired
+behavior. The default is `'list'`.
+
 ### Custom formats
 
 If bravado-types encounters a primitive type spec with an unrecognized 'format'
