@@ -39,4 +39,9 @@ setup(
         # Used for accessing package resources
         'setuptools',
     ],
+    entry_points={
+        'console_scripts': [
+            'bravado-types = bravado_types.__main__:main',
+        ],
+    },
 )

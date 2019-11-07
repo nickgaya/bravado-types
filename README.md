@@ -41,8 +41,7 @@ To install the latest master version directly from GitHub:
 To start using bravado-types, invoke the CLI against your Swagger schema of
 choice:
 
-    python3 -m bravado_types \
-        --url 'https://petstore.swagger.io/v2/swagger.json' \
+    bravado-types --url 'https://petstore.swagger.io/v2/swagger.json' \
         --name PetStore --path petstore.py
 
 This command will download the PetStore example schema and generate a Python 3
@@ -63,7 +62,7 @@ Code generation can also be done programmatically.
 
 Bravado-types supports several optional parameters to customize code
 generation. See the `bravado_types.render.RenderConfig` docstring or the CLI
-help output (`python -m bravado_types --help`) for details.
+help output (`bravado-types --help`) for details.
 
 ### Using the generated module
 
