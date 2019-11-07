@@ -1,51 +1,25 @@
-from bravado_types.data_model import TypeDef
+from bravado_types.data_model import TypeInfo
 
 
-def test_TypeDef_wrap_model():
-    td = TypeDef("Sequence[{}]", "ModelName")
-    wtd = td.wrap("Optional[{}]")
-    assert wtd.fmt == "Optional[Sequence[{}]]"
-    assert wtd.model == "ModelName"
+def test_TypeInfo_wrap_simple():
+    ti = TypeInfo('int')
+    wti = ti.wrap('typing.List[{}]')
+    assert wti.base_type == 'int'
+    assert wti.is_model is False
+    assert wti.outer == ('typing.List[{}]',)
 
 
-def test_TypeDef_wrap_nomodel():
-    td = TypeDef("int")
-    wtd = td.wrap("Sequence[{}]")
-    assert wtd.fmt == "Sequence[int]"
-    assert wtd.model is None
+def test_TypeInfo_wrap_model():
+    ti = TypeInfo('Model', is_model=True)
+    wti = ti.wrap('typing.List[{}]')
+    assert wti.base_type == 'Model'
+    assert wti.is_model is True
+    assert wti.outer == ('typing.List[{}]',)
 
 
-def test_TypeDef_eq():
-    assert TypeDef("int") == TypeDef("int")
-    assert TypeDef("int") != TypeDef("float")
-    assert TypeDef("Sequence[{}]", "Model") == TypeDef("Sequence[{}]", "Model")
-    assert TypeDef("Sequence[{}]", "Model") != TypeDef("Optional[{}]", "Model")
-    assert (TypeDef("Sequence[{}]", "Model")
-            != TypeDef("Sequence[{}]", "Model2"))
-    assert TypeDef("Sequence[{}]", "Model") != TypeDef("int")
-
-
-def test_TypeDef_hash_eq():
-    assert hash(TypeDef("int")) == hash(TypeDef("int"))
-    assert hash(TypeDef("Sequence[{}]", "Model")) == hash(
-        TypeDef("Sequence[{}]", "Model")
-    )
-
-
-def test_TypeDef_hashable():
-    tdset = {
-        TypeDef("int"),
-        TypeDef("float"),
-        TypeDef("Sequence[{}]", "Model"),
-        TypeDef("Optional[{}]", "Model"),
-        TypeDef("Sequence[{}]", "Model2"),
-        TypeDef("int"),
-        TypeDef("Sequence[{}]", "Model"),
-    }
-    assert tdset == {
-        TypeDef("int"),
-        TypeDef("float"),
-        TypeDef("Sequence[{}]", "Model"),
-        TypeDef("Optional[{}]", "Model"),
-        TypeDef("Sequence[{}]", "Model2"),
-    }
+def test_TypeInfo_wrap_multiple():
+    ti = TypeInfo('Model', is_model=True)
+    wti = ti.wrap('typing.List[{}]').wrap('typing.Optional[{}]')
+    assert wti.base_type == 'Model'
+    assert wti.is_model is True
+    assert wti.outer == ('typing.List[{}]', 'typing.Optional[{}]')

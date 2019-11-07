@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, List
 import pkg_resources
 from mako.lookup import TemplateLookup
 
-from bravado_types.data_model import SpecInfo, ModelInfo, TypeDef
+from bravado_types.data_model import SpecInfo, ModelInfo, TypeInfo
 from bravado_types.metadata import Metadata
 
 DEFAULT_CLIENT_TYPE_FORMAT = "{}Client"
@@ -103,12 +103,13 @@ class RenderConfig:
         """Get the type name of a given model."""
         return self.model_type_format.format(model_name)
 
-    def typedef_type(self, typedef: TypeDef) -> str:
-        """Get a type string for a TypeDef object."""
-        if typedef.model:
-            return typedef.fmt.format(repr(self.model_type(typedef.model)))
-        else:
-            return typedef.fmt
+    def type(self, type_info: TypeInfo) -> str:
+        """Get a type string for a TypeInfo object."""
+        type_str = (self.model_type(type_info.base_type) if type_info.is_model
+                    else type_info.base_type)
+        for outer in type_info.outer:
+            type_str = outer.format(type_str)
+        return type_str
 
 
 def black_postprocessor(py_file: str, pyi_file: str) -> None:

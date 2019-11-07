@@ -6,7 +6,7 @@ from typing import Any, Dict
 from bravado_core.schema import get_type_from_schema
 from bravado_core.spec import Spec
 
-from bravado_types.data_model import TypeDef
+from bravado_types.data_model import TypeInfo
 
 # Map of Swagger primitive types to Python types
 SWAGGER_PRIMITIVE_TYPES = {
@@ -36,54 +36,55 @@ SWAGGER_FORMATS = {
 }
 
 
-def get_type(spec: Spec, schema: Dict[str, Any]) -> TypeDef:
+def get_type_info(spec: Spec, schema: Dict[str, Any]) -> TypeInfo:
     """
     Get the type of a schema within a Swagger spec.
     :param spec: Bravado-core spec object
     :param schema: Schema dict
-    :return: A TypeDef for the schema.
+    :return: A TypeInfo for the schema.
     """
     schema = spec.deref(schema)
     schema_type = get_type_from_schema(spec, schema)
     if schema_type == "array":
-        typedef = _get_array_type(spec, schema)
+        type_info = _get_array_type_info(spec, schema)
     elif schema_type == "object":
-        typedef = _get_object_type(spec, schema)
+        type_info = _get_object_type_info(spec, schema)
     elif schema_type in SWAGGER_PRIMITIVE_TYPES:
-        typedef = _get_primitive_type(spec, schema)
+        type_info = _get_primitive_type_info(spec, schema)
     elif schema_type == "file":
-        typedef = TypeDef("typing.Any")
+        type_info = TypeInfo("typing.Any")
     elif schema_type is None:
-        typedef = TypeDef("typing.Any")
+        type_info = TypeInfo("typing.Any")
     else:
         warnings.warn(f"Unknown schema type: {schema_type!r}")
-        typedef = TypeDef("typing.Any")
+        type_info = TypeInfo("typing.Any")
 
     if schema.get("x-nullable", False):
-        typedef = typedef.wrap("typing.Optional[{}]")
-    return typedef
+        type_info = type_info.wrap("typing.Optional[{}]")
+
+    return type_info
 
 
-def _get_array_type(spec: Spec, schema: Dict[str, Any]) -> TypeDef:
+def _get_array_type_info(spec: Spec, schema: Dict[str, Any]) -> TypeInfo:
     """
     Get the type of an array schema.
     :param spec: Bravado-core spec object
     :param schema: Schema dict
-    :return: A TypeDef for the schema.
+    :return: A TypeInfo for the schema.
     """
-    item_type = get_type(spec, schema["items"])
-    return item_type.wrap("typing.Sequence[{}]")
+    item_type = get_type_info(spec, schema["items"])
+    return item_type.wrap('typing.Sequence[{}]')
 
 
-def _get_object_type(spec: Spec, schema: Dict[str, Any]) -> TypeDef:
+def _get_object_type_info(spec: Spec, schema: Dict[str, Any]) -> TypeInfo:
     """
     Get the type of an object schema.
     :param spec: Bravado-core spec object
     :param schema: Schema dict
-    :return: A TypeDef for the schema.
+    :return: A TypeInfo for the schema.
     """
     if "x-model" in schema:
-        return TypeDef("{}", schema["x-model"])
+        return TypeInfo(schema["x-model"], is_model=True)
 
     # Special case: allOf with a single item. This may be used to specify a
     # nullable ref, like this:
@@ -93,33 +94,33 @@ def _get_object_type(spec: Spec, schema: Dict[str, Any]) -> TypeDef:
     #   - $ref: '#/definitions/Model'
     if ('allOf' in schema and len(schema['allOf']) == 1
             and 'properties' not in schema):
-        return get_type(spec, schema['allOf'][0])
+        return get_type_info(spec, schema['allOf'][0])
 
-    return TypeDef("typing.Dict[str, typing.Any]")
+    return TypeInfo("typing.Dict[str, typing.Any]")
 
 
-def _get_primitive_type(spec: Spec, schema: Dict[str, Any]) -> TypeDef:
+def _get_primitive_type_info(spec: Spec, schema: Dict[str, Any]) -> TypeInfo:
     """
     Get the type of a primitive schema.
     :param spec: Bravado-core spec object
     :param schema: Schema dict
-    :return: A TypeDef for the schema.
+    :return: A TypeInfo for the schema.
     """
     schema_type = schema["type"]
     if "format" in schema:
         schema_format = schema["format"]
         format_type = SWAGGER_FORMATS.get(schema_type, {}).get(schema_format)
         if format_type is not None:
-            return TypeDef(format_type)
+            return TypeInfo(format_type)
         else:
             warnings.warn(f"Unknown format {schema_format!r} for type "
                           f"{schema_type!r}")
-    return TypeDef(SWAGGER_PRIMITIVE_TYPES[schema_type])
+    return TypeInfo(SWAGGER_PRIMITIVE_TYPES[schema_type])
 
 
-def get_response_type(spec: Spec, rschema: Dict[str, Any]) -> TypeDef:
+def get_response_type_info(spec: Spec, rschema: Dict[str, Any]) -> TypeInfo:
     """Extract type information for a given response schema."""
     rschema = spec.deref(rschema)
     if "schema" in rschema:
-        return get_type(spec, rschema["schema"])
-    return TypeDef("None")
+        return get_type_info(spec, rschema["schema"])
+    return TypeInfo("None")

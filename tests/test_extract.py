@@ -2,7 +2,7 @@ from bravado_core.spec import Spec
 
 from bravado_types.data_model import (ModelInfo, OperationInfo, ParameterInfo,
                                       PropertyInfo, ResourceInfo, ResponseInfo,
-                                      SpecInfo, TypeDef)
+                                      SpecInfo, TypeInfo)
 from bravado_types.extract import get_spec_info
 
 
@@ -121,8 +121,8 @@ def test_extract_basic():
     assert spec_info.models == [
         ModelInfo(spec.definitions['Bar'], 'Bar', [], []),
         ModelInfo(spec.definitions['Foo'], 'Foo', [], [
-            PropertyInfo('foobar', TypeDef('str'), False),
-            PropertyInfo('id', TypeDef('int'), True),
+            PropertyInfo('foobar', TypeInfo('str'), False),
+            PropertyInfo('id', TypeInfo('int'), True),
         ]),
     ]
 
@@ -134,20 +134,20 @@ def test_extract_basic():
         OperationInfo(createFoo, 'createFoo', [
             ParameterInfo(
                 createFoo.params['request'],
-                'request', TypeDef('{}', 'Foo'), True),
+                'request', TypeInfo('Foo', is_model=True), True),
         ], [
-            ResponseInfo('204', TypeDef('None')),
+            ResponseInfo('204', TypeInfo('None')),
         ]),
         OperationInfo(getBar, 'getBar', [], [
-            ResponseInfo('200', TypeDef('{}', 'Bar')),
+            ResponseInfo('200', TypeInfo('Bar', is_model=True)),
         ]),
         OperationInfo(getFoo, 'getFoo', [
             ParameterInfo(getFoo.params['Header_Param'], 'Header_Param',
-                          TypeDef('str'), False),
-            ParameterInfo(getFoo.params['id'], 'id', TypeDef('int'), True),
+                          TypeInfo('str'), False),
+            ParameterInfo(getFoo.params['id'], 'id', TypeInfo('int'), True),
         ], [
-            ResponseInfo('200', TypeDef('{}', 'Foo')),
-            ResponseInfo('404', TypeDef('typing.Any')),
+            ResponseInfo('200', TypeInfo('Foo', is_model=True)),
+            ResponseInfo('404', TypeInfo('typing.Any')),
         ]),
     ]
 

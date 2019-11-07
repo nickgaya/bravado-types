@@ -1,6 +1,6 @@
 """Classes representing typing metadata about a Swagger spec."""
 
-from typing import Any, List, Optional, Type
+from typing import Any, List, Type
 
 from bravado_core.model import Model
 from bravado_core.operation import Operation
@@ -9,41 +9,37 @@ from bravado_core.resource import Resource
 from bravado_core.spec import Spec
 
 
-class TypeDef:
-    """Type annotation, possibly containing a model name."""
-
-    def __init__(self, fmt: str, model: Optional[str] = None):
+class TypeInfo:
+    def __init__(self, base_type: str, *outer: str, is_model: bool = False):
         """
-        :param fmt: Type format string
-        :param model: Optional model name
+        :param base_type: Base type string
+        :param outer: Outer layers wrapping the base type, outermost last
+        :param is_model: Whether the base type is a model
         """
-        self.fmt = fmt
-        self.model = model
+        self.base_type = base_type
+        self.outer = outer
+        self.is_model = is_model
 
-    def wrap(self, fmt: str) -> "TypeDef":
-        """Nest this TypeDef inside another type format string."""
-        return TypeDef(fmt.format(self.fmt), self.model)
-
-    def __hash__(self) -> int:
-        hsh = 1
-        hsh = 31 * hsh + hash(self.fmt)
-        hsh = 31 * hsh + hash(self.model)
-        return hsh
+    def wrap(self, outer: str) -> 'TypeInfo':
+        return TypeInfo(self.base_type, *self.outer, outer,
+                        is_model=self.is_model)
 
     def __eq__(self, other: Any) -> bool:
-        return (isinstance(other, TypeDef)
-                and self.fmt == other.fmt
-                and self.model == other.model)
+        return (isinstance(other, TypeInfo)
+                and self.base_type == other.base_type
+                and self.outer == other.outer
+                and self.is_model == other.is_model)
 
     def __repr__(self) -> str:
-        return (f'TypeDef({self.fmt!r}, {self.model!r})' if self.model
-                else f'TypeDef({self.fmt!r})')
+        va = ', '.join(map(repr, self.outer)) if self.outer else ''
+        im = ', is_model=True' if self.is_model else ''
+        return f'TypeInfo({self.base_type!r}{va}{im})'
 
 
 class PropertyInfo:
     """Type information about a Swagger model property."""
 
-    def __init__(self, name: str, type: TypeDef, required: bool):
+    def __init__(self, name: str, type: TypeInfo, required: bool):
         self.name = name
         self.type = type
         self.required = required
@@ -84,7 +80,8 @@ class ModelInfo:
 class ParameterInfo:
     """Type information about a Swagger operation parameter."""
 
-    def __init__(self, param: Param, name: str, type: TypeDef, required: bool):
+    def __init__(self, param: Param, name: str, type: TypeInfo,
+                 required: bool):
         self.param = param
         self.name = name
         self.type = type
@@ -105,7 +102,7 @@ class ParameterInfo:
 class ResponseInfo:
     """Type information about a Swagger operation response."""
 
-    def __init__(self, status: str, type: TypeDef):
+    def __init__(self, status: str, type: TypeInfo):
         self.status = status
         self.type = type
 

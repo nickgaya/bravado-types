@@ -11,7 +11,7 @@ from bravado_core.spec import Spec
 from bravado_types.data_model import (ModelInfo, OperationInfo, ParameterInfo,
                                       PropertyInfo, ResourceInfo, ResponseInfo,
                                       SpecInfo)
-from bravado_types.types import get_type, get_response_type
+from bravado_types.types import get_type_info, get_response_type_info
 
 
 def get_spec_info(spec: Spec) -> SpecInfo:
@@ -35,7 +35,7 @@ def _get_model_info(spec: Spec, name: str, mclass: Type[Model]) -> ModelInfo:
     return ModelInfo(
         mclass, name, mclass._inherits_from,
         [
-            PropertyInfo(pname, get_type(spec, pschema),
+            PropertyInfo(pname, get_type_info(spec, pschema),
                          required=pname in required_props)
             for pname, pschema in sorted(mclass._properties.items())
         ],
@@ -102,7 +102,7 @@ def _get_operation_info(spec: Spec, name: str, operation: Operation,
 
 def _get_parameter_info(spec: Spec, name: str, param: Param) -> ParameterInfo:
     """Extract type information for a given parameter."""
-    ptype = get_type(spec, get_param_type_spec(param))
+    ptype = get_type_info(spec, get_param_type_spec(param))
     return ParameterInfo(param, name, ptype, param.required)
 
 
@@ -111,6 +111,6 @@ def _get_operation_response_infos(spec: Spec, operation: Operation
     """Extract response type information for a given operation."""
     oschema = spec.deref(operation.op_spec)
     return [
-        ResponseInfo(status, get_response_type(spec, rschema))
+        ResponseInfo(status, get_response_type_info(spec, rschema))
         for status, rschema in sorted(oschema["responses"].items())
     ]

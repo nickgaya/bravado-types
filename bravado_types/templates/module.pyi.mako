@@ -80,9 +80,9 @@ class ${config.operation_type(operation.name)}(_Operation):
         *,
         % for param in operation.params:
             % if param.required:
-        ${param.name}: ${config.typedef_type(param.type)},
+        ${param.name}: ${config.type(param.type)},
             %else:
-        ${param.name}: ${config.typedef_type(param.type)} = None,
+        ${param.name}: ${config.type(param.type)} = None,
             % endif
         % endfor
         _request_options: typing.Dict[str, typing.Any] = None,
@@ -92,7 +92,7 @@ class ${config.operation_type(operation.name)}(_Operation):
         typing.Union[
                 % for response in operation.responses:
                     % if response.success:
-                ${config.typedef_type(response.type)},  # ${response.status}
+                ${config.type(response.type)},  # ${response.status}
                     % endif
                 % endfor
         ]
@@ -102,10 +102,10 @@ class ${config.operation_type(operation.name)}(_Operation):
         % elif config.response_types == 'union':
         typing.Union[
             % for response in operation.responses:
-            ${config.typedef_type(response.type)},  # ${response.status}
+            ${config.type(response.type)},  # ${response.status}
             % endfor
             % if operation.default_rtype:
-            ${config.typedef_type(operation.default_rtype)},  # default
+            ${config.type(operation.default_rtype)},  # default
             % endif
         ]
         % else:
@@ -142,9 +142,9 @@ class ${config.model_type(model.name)}(_Model):
     % endif
     % for prop in model.props:
         % if prop.required:
-        ${prop.name}: ${config.typedef_type(prop.type)},
+        ${prop.name}: ${config.type(prop.type)},
         % else:
-        ${prop.name}: ${config.typedef_type(prop.type)} = None,
+        ${prop.name}: ${config.type(prop.type)} = None,
         % endif
     % endfor
     ) -> None:
