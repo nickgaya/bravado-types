@@ -71,7 +71,6 @@ class ${config.resource_type(resource.name)}(_Resource):
     % endfor
 
 % endfor
-
 _Operation = bravado_core.operation.Operation
 
 % for operation in spec.operations:
@@ -115,7 +114,6 @@ class ${config.operation_type(operation.name)}(_Operation):
     ]: ...
 
 % endfor
-
 class _Model(bravado_core.model.Model):
     @typing.no_type_check
     def __getattr__(self, attr): ...
