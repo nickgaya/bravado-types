@@ -11,8 +11,8 @@ from bravado_types.render import (
     DEFAULT_OPERATION_TYPE_FORMAT,
     DEFAULT_RESOURCE_TYPE_FORMAT,
     DEFAULT_RESPONSE_TYPES,
-    RESPONSE_TYPES_CHOICES,
     RenderConfig,
+    ResponseTypes,
     black_postprocessor,
 )
 
@@ -65,7 +65,7 @@ def main(args: Optional[Sequence[str]] = None) -> None:
 
     parser.add_argument(
         "--response-types",
-        choices=RESPONSE_TYPES_CHOICES,
+        choices=[rt.value for rt in ResponseTypes],
         default=None,
         help="Option for how operation response types should be annotated."
         "A value of 'success' indicates that response types should be a union "
@@ -73,7 +73,7 @@ def main(args: Optional[Sequence[str]] = None) -> None:
         "'all' indicates that response types should be a union of all "
         "documented response types. A value of 'any' indicates that all "
         "operations should be annotated as returning Any. "
-        f"Default {DEFAULT_RESPONSE_TYPES!r}",
+        f"Default {DEFAULT_RESPONSE_TYPES.value!r}",
     )
 
     parser.add_argument(

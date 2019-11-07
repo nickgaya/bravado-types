@@ -1,8 +1,9 @@
 import subprocess
-from mako.lookup import TemplateLookup
+from enum import Enum
 from typing import Any, Callable, Dict, List
 
 import pkg_resources
+from mako.lookup import TemplateLookup
 
 from bravado_types.data_model import SpecInfo, ModelInfo, TypeDef
 from bravado_types.metadata import Metadata
@@ -12,8 +13,14 @@ DEFAULT_RESOURCE_TYPE_FORMAT = "{}Resource"
 DEFAULT_OPERATION_TYPE_FORMAT = "{}Operation"
 DEFAULT_MODEL_TYPE_FORMAT = "{}"
 
-RESPONSE_TYPES_CHOICES = ("success", "union", "any")
-DEFAULT_RESPONSE_TYPES = "success"
+
+class ResponseTypes(str, Enum):
+    success = 'success'
+    union = 'union'
+    any = 'any'
+
+
+DEFAULT_RESPONSE_TYPES = ResponseTypes.success
 
 
 class RenderConfig:
@@ -26,7 +33,7 @@ class RenderConfig:
         resource_type_format: str = None,
         operation_type_format: str = None,
         model_type_format: str = None,
-        response_types: str = None,
+        response_types: ResponseTypes = None,
         model_inheritance: bool = False,
         custom_templates_dir: str = None,
         postprocessor: Callable[[str, str], Any] = None,
@@ -40,13 +47,13 @@ class RenderConfig:
         :param operation_type_format: Format string for generated operation
             types.
         :param model_type_format: Format string for generated model types.
-        :param response_types: String indicating how operation response types
-            should be annotated. A value of 'success' indicates that response
-            types should be a union of defined response types for 2xx status
-            codes. A value of 'all' indicates that response types should be a
-            union of all documented response types. A value of 'any' indicates
-            that all operations should be annotated as returning Any. If not
-            specified, the default is 'success'.
+        :param response_types: ResponseTypes enum member indicating how
+            operation response types should be annotated. A value of 'success'
+            indicates that response types should be a union of defined response
+            types for 2xx status codes. A value of 'all' indicates that
+            response types should be a union of all documented response types.
+            A value of 'any' indicates that all operations should be annotated
+            as returning Any. If not specified, the default is 'success'.
         :param model_inheritance: If True, the model type hierarchy will
             reflect model inheritance relationships as expressed by the allOf
             schema property. If False, model types will only inherit from
@@ -72,11 +79,7 @@ class RenderConfig:
             operation_type_format or DEFAULT_OPERATION_TYPE_FORMAT
         self.model_type_format = model_type_format or DEFAULT_MODEL_TYPE_FORMAT
 
-        _response_types = (response_types or DEFAULT_RESPONSE_TYPES).lower()
-        if _response_types not in RESPONSE_TYPES_CHOICES:
-            raise ValueError("Invalid response_types value: "
-                             r"{response_types!r}")
-        self.response_types = _response_types
+        self.response_types = response_types or DEFAULT_RESPONSE_TYPES
 
         self.model_inheritance = model_inheritance
 
