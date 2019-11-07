@@ -1,4 +1,5 @@
-<%page args="config, spec" />\
+<%page args="metadata, spec, config" />\
+<%include file="header.mako" args="metadata=metadata" />\
 """${config.name} types."""
 
 import sys

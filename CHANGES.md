@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Add _request_options to operation call parameters
+- Add informational header to generated files
 
 ## 0.1.0
 

@@ -5,6 +5,7 @@ from typing import Any, Callable, Dict, List
 import pkg_resources
 
 from bravado_types.data_model import SpecInfo, ModelInfo, TypeDef
+from bravado_types.metadata import Metadata
 
 DEFAULT_CLIENT_TYPE_FORMAT = "{}Client"
 DEFAULT_RESOURCE_TYPE_FORMAT = "{}Resource"
@@ -112,7 +113,7 @@ def black_postprocessor(py_file: str, pyi_file: str) -> None:
     subprocess.run(["black", "-q", py_file, pyi_file], check=True)
 
 
-def render(spec: SpecInfo, config: RenderConfig) -> None:
+def render(metadata: Metadata, spec: SpecInfo, config: RenderConfig) -> None:
     """
     Render module and stub files for a given Swagger schema.
     :param spec: SpecInfo representing the schema.
@@ -130,11 +131,13 @@ def render(spec: SpecInfo, config: RenderConfig) -> None:
 
     py_template = lookup.get_template("module.py.mako")
     with open(config.py_path, "w") as f:
-        f.write(py_template.render(spec=spec, config=config))
+        f.write(py_template.render(metadata=metadata, spec=spec,
+                                   config=config))
 
     pyi_template = lookup.get_template("module.pyi.mako")
     with open(config.pyi_path, "w") as f:
-        f.write(pyi_template.render(spec=spec, config=config))
+        f.write(pyi_template.render(metadata=metadata, spec=spec,
+                                    config=config))
 
     if config.postprocessor:
         config.postprocessor(config.py_path, config.pyi_path)
