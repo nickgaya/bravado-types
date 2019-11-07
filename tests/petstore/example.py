@@ -22,6 +22,9 @@ reveal_type(client.pet.getPetById)  # note: Revealed type is 'petstore.getPetByI
 pet123 = client.pet.getPetById(petId=123).response().result
 reveal_type(pet123)  # note: Revealed type is 'Union[petstore.Pet*, None]'
 
+client.pet.getPetById(petId=456, _request_options={
+    'headers': {'Example-Header': 'header value'}
+})
 
 def get_name(pet: TPet) -> str:
     reveal_type(pet)  # note: Revealed type is 'petstore.Pet'

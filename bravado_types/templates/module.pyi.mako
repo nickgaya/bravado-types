@@ -77,9 +77,7 @@ _Operation = bravado_core.operation.Operation
 class ${config.operation_type(operation.name)}(_Operation):
     def __call__(
         self,
-        % if operation.params:
         *,
-        % endif
         % for param in operation.params:
             % if param.required:
         ${param.name}: ${config.typedef_type(param.type)},
@@ -87,6 +85,7 @@ class ${config.operation_type(operation.name)}(_Operation):
         ${param.name}: ${config.typedef_type(param.type)} = None,
             % endif
         % endfor
+        _request_options: typing.Dict[str, typing.Any] = None,
     ) -> bravado.http_future.HttpFuture[
         % if config.response_types == 'success':
             % if any(response.success for response in operation.responses):
