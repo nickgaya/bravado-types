@@ -153,9 +153,9 @@ behavior. The default is `'list'`.
 
 ### Custom formats
 
-If bravado-types encounters a primitive type spec with an unrecognized 'format'
-property, it emits a warning and assigning the variable a type based on the
-'type' property alone.
+If bravado-types encounters a primitive type spec with an unrecognized `format`
+property, it emits a warning and assigns the variable a type based on the
+`type` property alone.
 
 Future versions of this tool may add support for custom user-defined formats.
 
