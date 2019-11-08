@@ -140,16 +140,23 @@ most pragmatic option, although the least sound.
 
 ### Array types
 
-Bravado allows either lists or tuples for values with `type: array` in the
-Swagger schema. We can represent this precisely in type stubs as
-`Union[List[T], Tuple[T, ...]]` but this is somewhat cumbersome. Another
-alternative would be to use `Sequence[T]`, but this has the downside that MyPy
-considers `str` a subtype of `Sequence[str]` and `bytes` a subtype of
-`Sequence[int]`.  A third alternative would be to use `List[T]`. This is more
-restrictive than necessary, but also simpler.
+Bravado accepts either lists or tuples when marshaling values with
+`type: array` in the Swagger schema, and creates lists when unmarshaling. There
+are a few ways we could represent this in the type annotations:
 
-We provide a configuration parameter, `array_types` to specify the desired
-behavior. The default is `'list'`.
+* The most precise description would be `Union[List[T], Tuple[T, ...]]` but
+this is rather verbose and awkward.
+
+* A less precise but more concise alternative is to use `Sequence[T]`. This has
+the downside that MyPy considers `str` a subtype of `Sequence[str]`, which can
+lead to buggy code that passes type-checking but fails schema validation at
+runtime.
+
+* A third alternative is to use only `List[T]` and forbid the use of tuples.
+This is overly restrictive, but leads to simpler annotated types.
+
+By default, we use `List[T]` to represent array types, but this behavior can be
+overridden via the `array_types` configuration parameter.
 
 ### Custom formats
 
