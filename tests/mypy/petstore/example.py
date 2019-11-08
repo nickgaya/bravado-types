@@ -1,11 +1,10 @@
 import os.path
 from typing import Any
 
-from petstore import PetStoreClient, Pet as TPet
+from petstore import PetstoreClient, Pet as TPet
 
-schema_path = os.path.dirname(os.path.abspath(__file__)) + "/schema.json"
-client = PetStoreClient.from_url(f"file://{schema_path}")
-reveal_type(client)  # note: Revealed type is 'petstore.PetStoreClient'
+client = PetstoreClient.from_url('...')
+reveal_type(client)  # note: Revealed type is 'petstore.PetstoreClient'
 
 Pet = client.get_model("Pet")
 reveal_type(Pet)  # note: Revealed type is 'Type[petstore.Pet]'

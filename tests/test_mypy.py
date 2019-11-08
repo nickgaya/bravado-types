@@ -11,14 +11,60 @@ from bravado.client import SwaggerClient
 
 from bravado_types import RenderConfig, generate_module
 
-TESTS_DIR = os.path.abspath(os.path.dirname(__file__))
-PETSTORE_DIR = f"{TESTS_DIR}/petstore"
-PY_FILE = f"{PETSTORE_DIR}/petstore.py"
-PYI_FILE = f"{PETSTORE_DIR}/petstore.pyi"
+TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
+MYPY_DIR = f"{TESTS_DIR}/mypy"
+
+
+def _generate_test_classes():
+    w = os.walk(MYPY_DIR)
+    next(w)  # Skip MYPY_DIR itself
+    for path, ds, fs in w:
+        ds.clear()  # Don't recurse past first level
+        name = os.path.basename(path)
+        schemas = [f for f in fs if (f.endswith('.json') or f.endswith('.yml')
+                                     or f.endswith('.yaml'))]
+        generated_modules = {f.split('.')[0] + '.py' for f in schemas}
+        modules = [f for f in fs if f.endswith('.py')
+                   and f not in generated_modules]
+        _generate_test_class(name, path, schemas, modules)
+
+
+def _generate_test_class(name, path, schemas, modules):
+    @pytest.fixture(scope='class', autouse=True)
+    def codegen(self):
+        for schema in schemas:
+            swagger_client = SwaggerClient.from_url(
+                f"file://{path}/{schema}")
+            name, ext = schema.split('.')
+            py_file = '{}/{}.py'.format(path, name)
+            pyi_file = '{}/{}.pyi'.format(path, name)
+
+            for fpath in py_file, pyi_file:
+                if os.path.exists(fpath):
+                    os.unlink(fpath)
+
+            render_config = RenderConfig(name=name.title(), path=py_file)
+            generate_module(swagger_client, render_config)
+
+    @pytest.mark.parametrize('module', modules)
+    def test_with_mypy(self, module):
+        expected_out = _get_expected_out(f'{path}/{module}')
+
+        with _chdir(path):
+            result = mypy.api.run([module])
+
+        out = result[0] or result[1]
+        assert expected_out == out.splitlines()
+
+    class_name = f'Test{name.title()}'
+    globals()[class_name] = type(class_name, (), {
+        'codegen': codegen,
+        'test_with_mypy': test_with_mypy,
+    })
 
 
 @contextmanager
-def chdir(path):
+def _chdir(path):
     prev_wd = os.path.abspath(os.getcwd())
     os.chdir(path)
     try:
@@ -27,37 +73,14 @@ def chdir(path):
         os.chdir(prev_wd)
 
 
-@pytest.fixture(scope="module")
-def swagger_client():
-    return SwaggerClient.from_url(f"file://{PETSTORE_DIR}/schema.json")
-
-
-@pytest.fixture(scope="module", autouse=True)
-def generate_petstore_module(swagger_client):
-    for path in PY_FILE, PYI_FILE:
-        if os.path.exists(path):
-            os.unlink(path)
-
-    render_config = RenderConfig(name="PetStore", path=PY_FILE)
-    generate_module(swagger_client, render_config)
-
-
-@pytest.mark.parametrize("example", ["example.py", "bad_example.py"])
-def test_with_mypy(example):
-    with chdir(PETSTORE_DIR):
-        result = mypy.api.run([example])
-    out = result[0] or result[1]
-    expected_out = _get_expected_out(example)
-    assert expected_out == out.splitlines()
-
-
-def _get_expected_out(filename):
+def _get_expected_out(path):
     """Convert module comments to expected MyPy output."""
+    filename = os.path.basename(path)
     expected = []
     num_errors = 0
 
     prev = None
-    with open(f"{PETSTORE_DIR}/{filename}", "rb") as f:
+    with open(path, "rb") as f:
         for token in tokenize.tokenize(f.readline):
             if token.type == tokenize.COMMENT:
                 if token.string.startswith("# error:"):
@@ -79,3 +102,6 @@ def _get_expected_out(filename):
         )
 
     return expected
+
+
+_generate_test_classes()
