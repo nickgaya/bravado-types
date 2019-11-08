@@ -3,6 +3,7 @@ import typing
 
 import pytest
 from bravado.exception import HTTPError
+from bravado.client import SwaggerClient
 
 import example
 from example import petstore
@@ -11,6 +12,12 @@ from example import petstore
 @pytest.fixture(scope='module')
 def client():
     return example.create_client()
+
+
+def test_client_class(client):
+    assert isinstance(client, SwaggerClient) 
+    assert isinstance(client, petstore.PetStoreClient)
+    assert petstore.PetStoreClient.__name__ == 'PetStoreClient'
 
 
 def test_model_init(client):

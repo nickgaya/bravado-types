@@ -43,10 +43,10 @@ else:
     _PLACEHOLDER = _placeholder
 
 
-# Client type. At runtime, this is just an alias for
-# bravado.client.SwaggerClient
+# Client type
 
-${config.client_type} = SwaggerClient
+class ${config.client_type}(SwaggerClient):
+    pass
 
 # Resource types
 
