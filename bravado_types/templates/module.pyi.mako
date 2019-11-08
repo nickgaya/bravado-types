@@ -31,6 +31,7 @@ class ${config.client_type}(bravado.client.SwaggerClient):
 % for resource in spec.resources:
         self.${resource.name}: ${repr(config.resource_type(resource.name))}
 % endfor
+        self.swagger_spec = swagger_spec
 
     @classmethod
     def from_url(cls, spec_url: str,
@@ -46,17 +47,19 @@ class ${config.client_type}(bravado.client.SwaggerClient):
                   config: typing.Dict = None
                  ) -> ${repr(config.client_type)}: ...
 
-% for model in spec.models:
+% if spec.models:
+    % for model in spec.models:
     @typing.overload
     def get_model(self, model_name: typing_extensions.Literal[${repr(model.name)}]) -> typing.Type[${repr(config.model_type(model.name))}]: ...
-% endfor
+    % endfor
     @typing.overload
     def get_model(self, model_name: str) -> typing.Union[
-% for model in spec.models:
+    % for model in spec.models:
         typing.Type[${repr(config.model_type(model.name))}],
-% endfor
+    % endfor
     ]: ...
 
+% endif
     @typing.no_type_check
     def __getattr__(self, attr): ...
 

@@ -8,6 +8,7 @@
 - Use enum class for return_types config parameter
 - Refactor type representation in data model
 - Add configuration parameter for rendering array types
+- Fix template bug when schema has no models or resources
 
 ## 0.1.0
 

@@ -1,0 +1,6 @@
+---
+swagger: '2.0'
+info:
+  title: Minimal schema
+  version: '1.0'
+paths: {}
