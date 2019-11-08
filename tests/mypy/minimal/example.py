@@ -1,4 +1,4 @@
-from minimal import MinimalClient
+from minimal import MinimalSwaggerClient
 
-client: MinimalClient
-client.resource  # error: "MinimalClient" has no attribute "resource"
+client: MinimalSwaggerClient
+client.resource  # error: "MinimalSwaggerClient" has no attribute "resource"

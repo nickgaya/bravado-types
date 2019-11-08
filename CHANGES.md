@@ -10,6 +10,7 @@
 - Add configuration parameter for rendering array types
 - Fix template bug when schema has no models or resources
 - Create runtime subclass of SwaggerClient
+- Make default client and model type names more consistent
 
 ## 0.1.0
 

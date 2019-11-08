@@ -15,9 +15,9 @@ def client():
 
 
 def test_client_class(client):
-    assert isinstance(client, SwaggerClient) 
-    assert isinstance(client, petstore.PetStoreClient)
-    assert petstore.PetStoreClient.__name__ == 'PetStoreClient'
+    assert isinstance(client, petstore.PetStoreSwaggerClient)
+    assert issubclass(petstore.PetStoreSwaggerClient, SwaggerClient)
+    assert petstore.PetStoreSwaggerClient.__name__ == 'PetStoreSwaggerClient'
 
 
 def test_model_init(client):
@@ -26,7 +26,7 @@ def test_model_init(client):
     assert pet.name == 'petName'
 
     with pytest.raises(RuntimeError):
-        petstore.Pet(name='petName', photoUrls=[])
+        petstore.PetModel(name='petName', photoUrls=[])
 
 
 def test_model_isinstance(client):
@@ -35,12 +35,12 @@ def test_model_isinstance(client):
     assert isinstance(pet, Pet)
 
     with pytest.raises(TypeError):
-        isinstance(pet, petstore.Pet)
+        isinstance(pet, petstore.PetModel)
 
 
 def test_placeholder_union():
-    typing.Optional[petstore.Pet]
-    typing.Union[petstore.User, petstore.Pet]
+    typing.Optional[petstore.PetModel]
+    typing.Union[petstore.UserModel, petstore.PetModel]
 
 
 def test_api_calls(client):

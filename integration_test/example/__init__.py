@@ -1,12 +1,12 @@
-from example.petstore import PetStoreClient, Pet as TPet
+from example.petstore import PetStoreSwaggerClient, PetModel
 
 
-def create_client() -> PetStoreClient:
-    return PetStoreClient.from_url(
+def create_client() -> PetStoreSwaggerClient:
+    return PetStoreSwaggerClient.from_url(
         'https://petstore.swagger.io/v2/swagger.json')
 
 
-def create_pet(client: PetStoreClient, id: int) -> None:
+def create_pet(client: PetStoreSwaggerClient, id: int) -> None:
     Pet = client.get_model('Pet')
     pet = Pet(id=id, name='New Pet', photoUrls=[])
     response = client.pet.addPet(body=pet).response()
@@ -15,7 +15,7 @@ def create_pet(client: PetStoreClient, id: int) -> None:
         raise Exception(f"Create operation unsuccessful: {status_code}")
 
 
-def get_pet_by_id(client: PetStoreClient, id: int) -> TPet:
+def get_pet_by_id(client: PetStoreSwaggerClient, id: int) -> PetModel:
     response = client.pet.getPetById(petId=id).response()
     status_code = response.metadata.status_code
     if not 200 <= status_code < 300:

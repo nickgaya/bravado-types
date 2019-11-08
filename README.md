@@ -69,42 +69,42 @@ help output (`bravado-types --help`) for details.
 To create a type-aware client, import the relevant name from the generated
 module and use its `from_url()` or `from_spec()` method to create an instance.
 
-    from petstore import PetStoreClient
+    from petstore import PetStoreSwaggerClient
 
-    client = PetStoreClient.from_url(
+    client = PetStoreSwaggerClient.from_url(
         "https://petstore.swagger.io/v2/swagger.json")
-    reveal_type(client)  # petstore.PetStoreClient
+    reveal_type(client)  # petstore.PetStoreSwaggerClient
 
 You can use the client like a regular Bravado client to instantiate model
 objects and make API calls with them.
 
     Pet = client.get_model('Pet')
-    reveal_type(Pet)  # Type[petstore.Pet]
+    reveal_type(Pet)  # Type[petstore.PetModel]
 
     frank = Pet(name='Frank', photoUrls=[])
-    reveal_type(frank)  # petstore.Pet
+    reveal_type(frank)  # petstore.PetModel
 
     pet123 = client.pet.getPetById(id=123).response().result
-    reveal_type(pet123)  # petstore.Pet
+    reveal_type(pet123)  # petstore.PetModel
 
-The generated module also provides importable types for use in type
-annotations.
+The generated module also provides importable model, resource, and operation
+types for use in type annotations.
 
-    from petstore import Pet as TPet
+    from petstore import PetModel
 
-    def get_name(pet: TPet) -> str:
-        reveal_type(pet)  # petstore.Pet
+    def get_name(pet: PetModel) -> str:
+        reveal_type(pet)  # petstore.PetModel
         return pet.name
 
 Generated model, resource, and operation types are only used for static type
 checking and must not be used for runtime interactions.
 
     # Placeholder for static type-checking
-    from petstore import Pet as TPet
+    from petstore import PetModel
 
     # Use placeholder for type annotations and casts
-    pet: TPet = ...
-    typing.cast(TPet, ...)
+    pet: PetModel = ...
+    pet2 = typing.cast(PetModel, ...)
 
     # Runtime model class
     Pet = client.get_model('Pet')
@@ -178,14 +178,14 @@ additional properties, you can use dict-like syntax instead.
 
 For example, given this model schema...
 
-    x-model: APModel
+    x-model: APExample
     type: object
     additionalProperties:
       type: int
 
-...you can add a property called "something" like this:
+...you can add a property called "something" to a model instance like this:
 
-    model = APModel()
+    model: APExampleModel
     model['something'] = 123
 
 MyPy will not type-check additional properties.

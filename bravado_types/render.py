@@ -9,10 +9,10 @@ from bravado_types.data_model import SpecInfo, ModelInfo, TypeInfo
 from bravado_types.types import ARRAY_TYPE_TEMPLATE
 from bravado_types.metadata import Metadata
 
-DEFAULT_CLIENT_TYPE_FORMAT = "{}Client"
+DEFAULT_CLIENT_TYPE_FORMAT = "{}SwaggerClient"
 DEFAULT_RESOURCE_TYPE_FORMAT = "{}Resource"
 DEFAULT_OPERATION_TYPE_FORMAT = "{}Operation"
-DEFAULT_MODEL_TYPE_FORMAT = "{}"
+DEFAULT_MODEL_TYPE_FORMAT = "{}Model"
 
 
 class ResponseTypes(str, Enum):
