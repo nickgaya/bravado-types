@@ -30,7 +30,7 @@ from bravado_types.types import get_type_info, get_response_type_info
     ),
     pytest.param(
         {'type': 'array', 'items': {'type': 'object'}},
-        TypeInfo('typing.Dict[str, typing.Any]', 'typing.List[{}]'),
+        TypeInfo('typing.Mapping[str, typing.Any]', 'typing.List[{}]'),
         id="array_of_object",
     ),
     pytest.param(
@@ -55,7 +55,7 @@ from bravado_types.types import get_type_info, get_response_type_info
     ),
     pytest.param(
         {'type': 'object', 'properties': {'id': {'type': 'string'}}},
-        TypeInfo('typing.Dict[str, typing.Any]'),
+        TypeInfo('typing.Mapping[str, typing.Any]'),
         id="object_not_model",
     ),
     pytest.param(
@@ -65,7 +65,7 @@ from bravado_types.types import get_type_info, get_response_type_info
     ),
     pytest.param(
         {'type': 'object', 'x-nullable': True},
-        TypeInfo('typing.Dict[str, typing.Any]', 'typing.Optional[{}]'),
+        TypeInfo('typing.Mapping[str, typing.Any]', 'typing.Optional[{}]'),
         id="object_nullable",
     ),
     pytest.param(
@@ -190,7 +190,7 @@ def test_get_type_info(schema, expected):
     ),
     pytest.param(
         {'description': '...', 'schema': {'type': 'object'}},
-        TypeInfo('typing.Dict[str, typing.Any]'),
+        TypeInfo('typing.Mapping[str, typing.Any]'),
         id="schema_object",
     ),
     pytest.param(

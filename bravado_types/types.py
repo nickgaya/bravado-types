@@ -99,7 +99,7 @@ def _get_object_type_info(spec: Spec, schema: Dict[str, Any]) -> TypeInfo:
             and 'properties' not in schema):
         return get_type_info(spec, schema['allOf'][0])
 
-    return TypeInfo("typing.Dict[str, typing.Any]")
+    return TypeInfo("typing.Mapping[str, typing.Any]")
 
 
 def _get_primitive_type_info(spec: Spec, schema: Dict[str, Any]) -> TypeInfo:

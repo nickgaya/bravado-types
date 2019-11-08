@@ -11,6 +11,7 @@
 - Fix template bug when schema has no models or resources
 - Create runtime subclass of SwaggerClient
 - Make default client and model type names more consistent
+- Use `typing.Mapping` instead of `typing.Dict` in generated stub file
 
 ## 0.1.0
 

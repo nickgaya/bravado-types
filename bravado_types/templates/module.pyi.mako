@@ -36,15 +36,15 @@ class ${config.client_type}(bravado.client.SwaggerClient):
     @classmethod
     def from_url(cls, spec_url: str,
                  http_client: bravado.http_client.HttpClient = None,
-                 request_headers: typing.Dict = None,
-                 config: typing.Dict = None
+                 request_headers: typing.Mapping = None,
+                 config: typing.Mapping = None
                 ) -> ${repr(config.client_type)}: ...
 
     @classmethod
-    def from_spec(cls, spec_dict: typing.Dict[str, typing.Any],
+    def from_spec(cls, spec_dict: typing.Mapping[str, typing.Any],
                   origin_url: str = None,
                   http_client: bravado.http_client.HttpClient = None,
-                  config: typing.Dict = None
+                  config: typing.Mapping = None
                  ) -> ${repr(config.client_type)}: ...
 
 % if spec.models:
@@ -88,7 +88,7 @@ class ${config.operation_type(operation.name)}(_Operation):
         ${param.name}: ${config.type(param.type)} = None,
             % endif
         % endfor
-        _request_options: typing.Dict[str, typing.Any] = None,
+        _request_options: typing.Mapping[str, typing.Any] = None,
     ) -> bravado.http_future.HttpFuture[
         % if config.response_types == 'success':
             % if any(response.success for response in operation.responses):
