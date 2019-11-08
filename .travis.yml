@@ -1,0 +1,19 @@
+language: python
+
+jobs:
+  include:
+    - env: TOXENV=lint
+      python: '3.7'
+    - env: TOXENV=mypy
+      python: '3.7'
+    - env: TOXENV=py36
+      python: '3.6'
+    - env: TOXENV=py37
+      python: '3.7'
+    - env: TOXENV=py36 INTEGRATION=true
+      python: '3.6'
+    - env: TOXENV=py37 INTEGRATION=true
+      python: '3.7'
+
+install: pip install tox
+script: ./travis.sh
