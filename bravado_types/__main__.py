@@ -15,7 +15,6 @@ from bravado_types.render import (
     ArrayTypes,
     RenderConfig,
     ResponseTypes,
-    black_postprocessor,
 )
 
 
@@ -92,15 +91,6 @@ def main(args: Optional[Sequence[str]] = None) -> None:
         help="Directory containing custom Mako templates.",
     )
 
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument(
-        "--black",
-        dest="postprocessor",
-        action="store_const",
-        const=black_postprocessor,
-        help="Use Black to format the generated files (requires Black).",
-    )
-
     ns = parser.parse_args(args)
 
     url = _normalize_url(ns.url)
@@ -116,7 +106,6 @@ def main(args: Optional[Sequence[str]] = None) -> None:
         array_types=ns.array_types,
         response_types=ns.response_types,
         custom_templates_dir=ns.custom_templates_dir,
-        postprocessor=ns.postprocessor,
     )
 
     generate_module(client, render_config)

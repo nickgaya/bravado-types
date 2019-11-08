@@ -1,4 +1,3 @@
-import subprocess
 from enum import Enum
 from typing import Any, Callable, Dict, List
 
@@ -142,11 +141,6 @@ class RenderConfig:
         else:
             raise ValueError("Unexpected ArrayTypes value: "
                              f"{self.array_types!r}")
-
-
-def black_postprocessor(py_file: str, pyi_file: str) -> None:
-    """Postprocessor that runs Black on the output files."""
-    subprocess.run(["black", "-q", py_file, pyi_file], check=True)
 
 
 def render(metadata: Metadata, spec: SpecInfo, config: RenderConfig) -> None:
