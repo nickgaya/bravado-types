@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
 
 - Add _request_options to operation call parameters
 - Add informational header to generated files
