@@ -33,8 +33,8 @@ setup(
         'setuptools_scm',
     ],
     install_requires=[
-        'bravado',
-        'bravado-core',
+        'bravado>=10.3.0',
+        'bravado-core>=5.14.0',
         # Template rendering library
         'mako',
         # Used for accessing package resources

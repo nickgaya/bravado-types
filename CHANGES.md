@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Specify minimum versions of bravado and bravado-core in setup.py
+
 ## 0.2.0
 
 - Add _request_options to operation call parameters
