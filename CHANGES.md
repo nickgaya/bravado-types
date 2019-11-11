@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Specify minimum versions of bravado and bravado-core in setup.py
+- Remove unneccessary quoting of forward references in pyi template
 
 ## 0.2.0
 

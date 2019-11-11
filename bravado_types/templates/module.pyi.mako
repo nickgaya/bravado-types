@@ -29,7 +29,7 @@ class ${config.client_type}(bravado.client.SwaggerClient):
     def __init__(self, swagger_spec: bravado_core.spec.Spec,
                  also_return_response: bool = False) -> None:
 % for resource in spec.resources:
-        self.${resource.name}: ${repr(config.resource_type(resource.name))}
+        self.${resource.name}: ${config.resource_type(resource.name)}
 % endfor
         self.swagger_spec = swagger_spec
 
@@ -38,24 +38,24 @@ class ${config.client_type}(bravado.client.SwaggerClient):
                  http_client: bravado.http_client.HttpClient = None,
                  request_headers: typing.Mapping = None,
                  config: typing.Mapping = None
-                ) -> ${repr(config.client_type)}: ...
+                ) -> ${config.client_type}: ...
 
     @classmethod
     def from_spec(cls, spec_dict: typing.Mapping[str, typing.Any],
                   origin_url: str = None,
                   http_client: bravado.http_client.HttpClient = None,
                   config: typing.Mapping = None
-                 ) -> ${repr(config.client_type)}: ...
+                 ) -> ${config.client_type}: ...
 
 % if spec.models:
     % for model in spec.models:
     @typing.overload
-    def get_model(self, model_name: typing_extensions.Literal[${repr(model.name)}]) -> typing.Type[${repr(config.model_type(model.name))}]: ...
+    def get_model(self, model_name: typing_extensions.Literal[${repr(model.name)}]) -> typing.Type[${config.model_type(model.name)}]: ...
     % endfor
     @typing.overload
     def get_model(self, model_name: str) -> typing.Union[
     % for model in spec.models:
-        typing.Type[${repr(config.model_type(model.name))}],
+        typing.Type[${config.model_type(model.name)}],
     % endfor
     ]: ...
 
@@ -70,7 +70,7 @@ class _Resource(bravado_core.resource.Resource):
 % for resource in spec.resources:
 class ${config.resource_type(resource.name)}(_Resource):
     % for operation in resource.operations:
-    ${operation.name}: ${repr(config.operation_type(operation.name))}
+    ${operation.name}: ${config.operation_type(operation.name)}
     % endfor
 
 % endfor

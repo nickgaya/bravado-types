@@ -1,10 +1,10 @@
 from enum import Enum
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable
 
 import pkg_resources
 from mako.lookup import TemplateLookup
 
-from bravado_types.data_model import SpecInfo, ModelInfo, TypeInfo
+from bravado_types.data_model import SpecInfo, TypeInfo
 from bravado_types.types import ARRAY_TYPE_TEMPLATE
 from bravado_types.metadata import Metadata
 
@@ -149,9 +149,6 @@ def render(metadata: Metadata, spec: SpecInfo, config: RenderConfig) -> None:
     :param spec: SpecInfo representing the schema.
     :param config: Rendering config.
     """
-    if config.model_inheritance:
-        _topo_sort(spec.models)
-
     template_dirs = []
     if config.custom_templates_dir:
         template_dirs.append(config.custom_templates_dir)
@@ -171,22 +168,3 @@ def render(metadata: Metadata, spec: SpecInfo, config: RenderConfig) -> None:
 
     if config.postprocessor:
         config.postprocessor(config.py_path, config.pyi_path)
-
-
-def _topo_sort(model_infos: List[ModelInfo]) -> None:
-    """Topologically sort list of models by inheritance."""
-    minfos = {mi.name: mi for mi in model_infos}
-    levels: Dict[str, int] = {}
-
-    def get_level(name: str) -> int:
-        if name in levels:
-            return levels[name]
-        minfo = minfos[name]
-        if minfo.parents:
-            level = max(map(get_level, minfo.parents)) + 1
-        else:
-            level = 0
-        levels[name] = level
-        return level
-
-    model_infos.sort(key=lambda mi: (get_level(mi.name), mi.name))
