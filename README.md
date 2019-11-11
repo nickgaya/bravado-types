@@ -126,7 +126,7 @@ offers three different options for response type annotations, specified by the
   types with 2xx status. This is unsound, but may be useful if you are primarily
   concerned with responses when the request was successful.
 
-* `'union'`: The response type will be declared as the union of all response
+* `'all'`: The response type will be declared as the union of all response
   types defined in the schema. This is probably the most correct but is
   cumbersome, as the developer must perform manual type checks or casts to
   obtain a useable type.

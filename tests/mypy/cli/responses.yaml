@@ -1,0 +1,102 @@
+swagger: '2.0'
+info:
+  title: Example schema
+  version: '1.0'
+paths:
+  /example:
+    get:
+      operationId: example
+      tags: [resource]
+      responses:
+        200:    
+          $ref: '#/responses/ok'
+        500:
+          $ref: '#/responses/error'
+  /exampleWithDefault:
+    get:
+      operationId: exampleWithDefault
+      tags: [resource]
+      responses:
+        200:    
+          $ref: '#/responses/ok'
+        default:
+          $ref: '#/responses/error'
+  /exampleSuccessOnly:
+    get:
+      operationId: exampleSuccessOnly
+      tags: [resource]
+      responses:
+        200:    
+          $ref: '#/responses/ok'
+  /exampleDefaultOnly:
+    get:
+      operationId: exampleDefaultOnly
+      tags: [resource]
+      responses:
+        default:    
+          $ref: '#/responses/error'
+  /exampleErrorOnly:
+    get:
+      operationId: exampleErrorOnly
+      tags: [resource]
+      responses:
+        500:    
+          $ref: '#/responses/error'
+  /exampleMultipleSuccess:
+    get:
+      operationId: exampleMultipleSuccess
+      tags: [resource]
+      responses:
+        200:    
+          $ref: '#/responses/ok'
+        201:    
+          $ref: '#/responses/other'
+  /exampleNoContent:
+    get:
+      operationId: exampleNoContent
+      tags: [resource]
+      responses:
+        204:    
+          $ref: '#/responses/no_content'
+        500:
+          $ref: '#/responses/error'
+  /exampleMultiple:
+    get:
+      operationId: exampleMultiple
+      tags: [resource]
+      responses:
+        200:    
+          $ref: '#/responses/ok'
+        201:    
+          $ref: '#/responses/other'
+        204:    
+          $ref: '#/responses/no_content'
+        404:
+          $ref: '#/responses/error'
+        500:
+          $ref: '#/responses/error'
+        default:
+          $ref: '#/responses/error'
+responses:
+  ok:
+    description: ok
+    schema:
+      $ref: '#/definitions/Foo'
+  other:
+    description: other
+    schema:
+      $ref: '#/definitions/Bar'
+  no_content:
+    description: no content
+  error:
+    description: error
+    schema:
+      $ref: '#/definitions/Error'
+    
+definitions:
+  Foo:
+    type: object
+  Bar:
+    type: object
+  Error:
+    type: object

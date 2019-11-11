@@ -1,5 +1,6 @@
 """Tests of code generation and MyPy type checking."""
 
+import configparser
 import os
 import os.path
 import tokenize
@@ -10,9 +11,20 @@ import pytest
 from bravado.client import SwaggerClient
 
 from bravado_types import RenderConfig, generate_module
+from bravado_types.__main__ import main
 
 TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
 MYPY_DIR = f"{TESTS_DIR}/mypy"
+
+
+class Schema:
+    def __init__(self, schema_file, name=None, py_file=None, args=None):
+        self.schema_file = schema_file
+        self.schema_name, _ = os.path.basename(schema_file).split('.')
+        self.name = name or self.schema_name.title().replace('_', '')
+        self.py_file = py_file or f'{self.schema_name}.py'
+        self.pyi_file = f'{py_file}i'
+        self.args = None if args is None else (args.split() if args else [])
 
 
 def _generate_test_classes():
@@ -21,33 +33,61 @@ def _generate_test_classes():
     for path, ds, fs in w:
         ds.clear()  # Don't recurse past first level
         name = os.path.basename(path)
-        schemas = [f for f in fs if (f.endswith('.json') or f.endswith('.yml')
-                                     or f.endswith('.yaml'))]
-        generated_modules = {f.split('.')[0] + '.py' for f in schemas}
+        if 'test.cfg' in fs:
+            test_config = configparser.ConfigParser()
+            test_config.read(os.path.join(path, 'test.cfg'))
+            schemas = []
+            for section_name in test_config.sections():
+                section = test_config[section_name]
+                schemas.append(Schema(schema_file=section['schema_file'],
+                                      name=section.get('name'),
+                                      py_file=section.get('py_file'),
+                                      args=section.get('args')))
+        else:
+            schemas = [Schema(f) for f in fs if (f.endswith('.json')
+                                                 or f.endswith('.yml')
+                                                 or f.endswith('.yaml'))]
+
+        generated_modules = {schema.py_file for schema in schemas}
+        assert len(generated_modules) == len(schemas)
         modules = [f for f in fs if f.endswith('.py')
                    and f not in generated_modules]
         _generate_test_class(name, path, schemas, modules)
 
 
 def _generate_test_class(name, path, schemas, modules):
-    @pytest.fixture(scope='class', autouse=True)
-    def codegen(self):
-        for schema in schemas:
-            swagger_client = SwaggerClient.from_url(
-                f"file://{path}/{schema}")
-            name, ext = schema.split('.')
-            py_file = '{}/{}.py'.format(path, name)
-            pyi_file = '{}/{}.pyi'.format(path, name)
+    @classmethod
+    def setup_class(cls):
+        cls.codegen_errors = {}
+        with _chdir(path):
+            for schema in schemas:
+                for fpath in schema.py_file, schema.pyi_file:
+                    if os.path.exists(fpath):
+                        os.unlink(fpath)
 
-            for fpath in py_file, pyi_file:
-                if os.path.exists(fpath):
-                    os.unlink(fpath)
+                url = f"file://{path}/{schema.schema_file}"
+                try:
+                    if schema.args is not None:
+                        main(['--url', url,
+                              '--name', schema.name,
+                              '--path', schema.py_file] + schema.args,
+                             exit=False)
+                    else:
+                        swagger_client = SwaggerClient.from_url(url)
+                        render_config = RenderConfig(name=schema.name,
+                                                     path=schema.py_file)
+                        generate_module(swagger_client, render_config)
+                except Exception as e:
+                    cls.codegen_errors[schema.py_file] = e
 
-            render_config = RenderConfig(name=name.title(), path=py_file)
-            generate_module(swagger_client, render_config)
+    @pytest.mark.parametrize('py_file', [schema.py_file for schema in schemas])
+    def test_codegen(self, py_file):
+        if py_file in self.codegen_errors:
+            raise RuntimeError(f"Exception during code generation") \
+                from self.codegen_errors[py_file]
 
     @pytest.mark.parametrize('module', modules)
-    def test_with_mypy(self, module):
+    def test_mypy(self, module):
         expected_out = _get_expected_out(f'{path}/{module}')
 
         with _chdir(path):
@@ -58,8 +98,9 @@ def _generate_test_class(name, path, schemas, modules):
 
     class_name = f'Test{name.title()}'
     globals()[class_name] = type(class_name, (), {
-        'codegen': codegen,
-        'test_with_mypy': test_with_mypy,
+        'setup_class': setup_class,
+        'test_codegen': test_codegen,
+        'test_mypy': test_mypy,
     })
 
 
@@ -95,7 +136,9 @@ def _get_expected_out(path):
             elif token.type != tokenize.NEWLINE:
                 prev = None
 
-    if num_errors:
+    if not expected:
+        expected.append(f"Success: no issues found in 1 source file")
+    elif num_errors:
         s = "" if num_errors == 1 else "s"
         expected.append(
             f"Found {num_errors} error{s} in 1 file (checked 1 source file)"

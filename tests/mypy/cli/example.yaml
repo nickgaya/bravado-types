@@ -1,0 +1,15 @@
+swagger: '2.0'
+info:
+  title: Example schema
+  version: '1.0'
+paths:
+  /foo:
+    get:
+      operationId: operation
+      tags: [resource]
+      responses:
+        204:
+          description: No content
+definitions:
+  Model:
+    type: object

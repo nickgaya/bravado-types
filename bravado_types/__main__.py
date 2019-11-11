@@ -1,6 +1,6 @@
 import os.path
 from argparse import ArgumentParser
-from typing import Optional, Sequence
+from typing import NoReturn, Optional, Sequence
 
 from bravado.client import SwaggerClient
 
@@ -8,6 +8,7 @@ from bravado_types import generate_module
 from bravado_types.render import (
     DEFAULT_ARRAY_TYPES,
     DEFAULT_CLIENT_TYPE_FORMAT,
+    DEFAULT_MODEL_INHERITANCE,
     DEFAULT_MODEL_TYPE_FORMAT,
     DEFAULT_OPERATION_TYPE_FORMAT,
     DEFAULT_RESOURCE_TYPE_FORMAT,
@@ -18,9 +19,27 @@ from bravado_types.render import (
 )
 
 
-def main(args: Optional[Sequence[str]] = None) -> None:
-    parser = ArgumentParser(description="Create a module and stub file for "
-                            "Bravado classes generated from a Swagger schema.")
+class _ArgumentParser(ArgumentParser):
+    """
+    ArgumentParser subclass with configurable error handling.
+    :param exit: If false, raise RuntimeError instead of calling sys.exit() in
+        case of errors.
+    """
+    def __init__(self, *args, exit: bool = True, **kwargs) -> None:
+        self._exit = exit
+        return super().__init__(*args, **kwargs)
+
+    def error(self, message: str) -> NoReturn:
+        if self._exit:
+            super().error(message)
+        else:
+            raise RuntimeError(message)
+
+
+def main(args: Optional[Sequence[str]] = None, exit: bool = True) -> None:
+    parser = _ArgumentParser(description="Create a module and stub file for "
+                             "Bravado classes generated from a Swagger "
+                             "schema.", exit=exit)
 
     parser.add_argument(
         "--url",
@@ -36,7 +55,7 @@ def main(args: Optional[Sequence[str]] = None) -> None:
     parser.add_argument(
         "--path",
         required=True,
-        help="Path of generated " "module file. Must end with '.py'.",
+        help="Path of generated module file. Must end with '.py'.",
     )
 
     parser.add_argument(
@@ -76,13 +95,28 @@ def main(args: Optional[Sequence[str]] = None) -> None:
         "--response-types",
         choices=[rt.value for rt in ResponseTypes],
         default=None,
-        help="Option for how operation response types should be annotated."
-        "A value of 'success' indicates that response types should be a union "
-        "of defined response types for 2xx status codes. A value of "
-        "'all' indicates that response types should be a union of all "
-        "documented response types. A value of 'any' indicates that all "
-        "operations should be annotated as returning Any. "
+        help="Option for how operation response types should be represented."
         f"Default {DEFAULT_RESPONSE_TYPES.value!r}",
+    )
+
+    mi_group = parser.add_mutually_exclusive_group()
+    mi_group.add_argument(
+        "--model-inheritance",
+        action='store_true',
+        default=None,
+        help="Enable model inheritance. The model type hierarchy will reflect "
+        "model inheritance relationships as expressed by the allOf schema "
+        "property."
+        f"{ ' Enabled by default.' if DEFAULT_MODEL_INHERITANCE else ''}"
+    )
+    mi_group.add_argument(
+        "--no-model-inheritance",
+        action='store_false',
+        dest='model_inheritance',
+        default=None,
+        help="Disable model inheritance.  Model types will only inherit from "
+        "bravado_core.model.Model."
+        f"{ '' if DEFAULT_MODEL_INHERITANCE else ' Enabled by default.'}"
     )
 
     parser.add_argument(
@@ -96,6 +130,10 @@ def main(args: Optional[Sequence[str]] = None) -> None:
     url = _normalize_url(ns.url)
     client = SwaggerClient.from_url(url)
 
+    array_types = ArrayTypes(ns.array_types) if ns.array_types else None
+    response_types = (ResponseTypes(ns.response_types) if ns.response_types
+                      else None)
+
     render_config = RenderConfig(
         name=ns.name,
         path=ns.path,
@@ -103,8 +141,9 @@ def main(args: Optional[Sequence[str]] = None) -> None:
         resource_type_format=ns.resource_type_format,
         operation_type_format=ns.operation_type_format,
         model_type_format=ns.model_type_format,
-        array_types=ns.array_types,
-        response_types=ns.response_types,
+        array_types=array_types,
+        response_types=response_types,
+        model_inheritance=ns.model_inheritance,
         custom_templates_dir=ns.custom_templates_dir,
     )
 

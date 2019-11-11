@@ -1,0 +1,14 @@
+swagger: '2.0'
+info:
+  title: Schema with array type
+  version: '1.0'
+paths: {}
+definitions:
+  Foo:
+    type: object
+    properties:
+      arr:
+        type: array
+        items:
+          type: string
+    required: [arr]

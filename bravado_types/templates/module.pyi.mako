@@ -102,14 +102,11 @@ class ${config.operation_type(operation.name)}(_Operation):
             % else:
         None  # No documented 2xx responses
             % endif
-        % elif config.response_types == 'union':
+        % elif config.response_types == 'all':
         typing.Union[
             % for response in operation.responses:
             ${config.type(response.type)},  # ${response.status}
             % endfor
-            % if operation.default_rtype:
-            ${config.type(operation.default_rtype)},  # default
-            % endif
         ]
         % else:
         typing.Any
@@ -131,7 +128,7 @@ class _Model(bravado_core.model.Model):
     % if config.model_inheritance:
 class ${config.model_type(model.name)}(
         % for parent in model.parents:
-    ${parent},
+    ${config.model_type(parent)},
         % endfor
     _Model
 ):

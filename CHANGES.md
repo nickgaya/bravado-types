@@ -4,6 +4,11 @@
 
 - Specify minimum versions of bravado and bravado-core in setup.py
 - Remove unneccessary quoting of forward references in pyi template
+- Fix handling of `--array-types` and `--return-types` CLI flags
+- Change `ReturnTypes.union` to `ReturnTypes.all`
+- Fix attribute error in template when `config.return_types` is set to `all`
+- Add `--model-inheritance` / `--no-model-inheritance` flags to CLI
+- Fix model inheritance template bug
 
 ## 0.2.0
 
