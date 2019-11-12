@@ -86,6 +86,13 @@ def _generate_test_class(name, path, schemas, modules):
             raise RuntimeError(f"Exception during code generation") \
                 from self.codegen_errors[py_file]
 
+        with _chdir(path):
+            normal_report, error_report, exit_status = \
+                mypy.api.run([f'{py_file}i'])
+        assert error_report == ""
+        assert normal_report == "Success: no issues found in 1 source file\n"
+        assert exit_status == 0
+
     @pytest.mark.parametrize('module', modules)
     def test_mypy(self, module):
         expected_out = _get_expected_out(f'{path}/{module}')
@@ -96,7 +103,7 @@ def _generate_test_class(name, path, schemas, modules):
         out = result[0] or result[1]
         assert expected_out == out.splitlines()
 
-    class_name = f'Test{name.title()}'
+    class_name = f"Test{name.title().replace('_', '')}"
     globals()[class_name] = type(class_name, (), {
         'setup_class': setup_class,
         'test_codegen': test_codegen,
@@ -137,7 +144,7 @@ def _get_expected_out(path):
                 prev = None
 
     if not expected:
-        expected.append(f"Success: no issues found in 1 source file")
+        expected.append("Success: no issues found in 1 source file")
     elif num_errors:
         s = "" if num_errors == 1 else "s"
         expected.append(

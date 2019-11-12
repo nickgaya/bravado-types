@@ -82,7 +82,7 @@ def test_extract_basic():
                     'responses': {
                         '200': {
                             'description': 'Success',
-                            'schema': {'$ref': '#/definitions/Bar'},
+                            'schema': {'$ref': '#/definitions/BarList'},
                         },
                     },
                 },
@@ -99,6 +99,10 @@ def test_extract_basic():
             },
             'Bar': {
                 'type': 'object',
+            },
+            'BarList': {
+                'type': 'array',
+                'items': {'$ref': '#/definitions/Bar'},
             },
         },
         'parameters': {
@@ -139,7 +143,8 @@ def test_extract_basic():
             ResponseInfo('204', TypeInfo('None')),
         ]),
         OperationInfo(getBar, 'getBar', [], [
-            ResponseInfo('200', TypeInfo('Bar', is_model=True)),
+            ResponseInfo('200', TypeInfo('Bar', 'typing.List[{}]',
+                                         is_model=True)),
         ]),
         OperationInfo(getFoo, 'getFoo', [
             ParameterInfo(getFoo.params['Header_Param'], 'Header_Param',
