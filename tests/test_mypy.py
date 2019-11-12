@@ -65,14 +65,14 @@ def _generate_test_class(name, path, schemas, modules):
                     if os.path.exists(fpath):
                         os.unlink(fpath)
 
-                url = f"file://{path}/{schema.schema_file}"
                 try:
                     if schema.args is not None:
-                        main(['--url', url,
+                        main(['--url', schema.schema_file,
                               '--name', schema.name,
                               '--path', schema.py_file] + schema.args,
                              exit=False)
                     else:
+                        url = f"file://{path}/{schema.schema_file}"
                         swagger_client = SwaggerClient.from_url(url)
                         render_config = RenderConfig(name=schema.name,
                                                      path=schema.py_file)

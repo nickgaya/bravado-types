@@ -1,5 +1,5 @@
-import os.path
 from argparse import ArgumentParser
+from pathlib import Path
 from typing import NoReturn, Optional, Sequence
 
 from bravado.client import SwaggerClient
@@ -158,8 +158,8 @@ def _normalize_url(url_or_path: str) -> str:
     if ":" in url_or_path:
         return url_or_path
     else:
-        path = os.path.abspath(url_or_path)
-        return f"file://{path}"
+        path = Path(url_or_path)
+        return path.resolve().as_uri()
 
 
 if __name__ == "__main__":

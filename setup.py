@@ -26,8 +26,15 @@ setup(
     # https://mypy.readthedocs.io/en/latest/installed_packages.html
     zip_safe=False,
     classifiers=[
+        "Topic :: Software Development :: Code Generators",
+        "Development Status :: 4 - Beta",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Operating System :: OS Independent",
+        "Intended Audience :: Developers",
+        "Typing :: Typed",
     ],
     setup_requires=[
         'setuptools_scm',

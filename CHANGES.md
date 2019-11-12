@@ -9,6 +9,7 @@
 - Fix attribute error in template when `config.return_types` is set to `all`
 - Add `--model-inheritance` / `--no-model-inheritance` flags to CLI
 - Fix model inheritance template bug
+- Add package classifiers
 
 ## 0.2.0
 
