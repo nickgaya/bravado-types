@@ -53,16 +53,16 @@ need to include the latter as a runtime package dependency.
 Code generation can also be done programmatically.
 
     from bravado import SwaggerClient
-    from bravado_types import RenderConfig, generate_module
+    from bravado_types import Config, generate_module
 
     client = SwaggerClient.from_url(
         "https://petstore.swagger.io/v2/swagger.json")
-    config = RenderConfig(name='PetStore', path='petstore.py')
+    config = Config(name='PetStore', path='petstore.py')
     generate_module(client, config)
 
 Bravado-types supports several optional parameters to customize code
-generation. See the `bravado_types.render.RenderConfig` docstring or the CLI
-help output (`bravado-types --help`) for details.
+generation. See the `bravado_types.config.Config` docstring or the CLI help
+output (`bravado-types --help`) for details.
 
 ### Using the generated module
 
@@ -113,7 +113,7 @@ checking and must not be used for runtime interactions.
     pet = Pet(name='Boots', photoUrls=[])
     assert isinstance(pet, Pet)
 
-## Caveats
+## Usage notes
 
 ### Operation response types
 
@@ -158,13 +158,24 @@ This is overly restrictive, but leads to simpler annotated types.
 By default, we use `List[T]` to represent array types, but this behavior can be
 overridden via the `array_types` configuration parameter.
 
-### Custom formats
+### User-defined formats
 
-If bravado-types encounters a primitive type spec with an unrecognized `format`
-property, it emits a warning and assigns the variable a type based on the
-`type` property alone.
+If using Bravado's [user-defined
+formats](https://bravado-core.readthedocs.io/en/latest/formats.html) feature,
+use the `custom_formats` configuration parameter to specify the python type for
+each user-defined format value in the schema, as well as any extra package
+imports required to resolve the type annotation.
 
-Future versions of this tool may add support for custom user-defined formats.
+For example, if you define a `bravado_core.formatter.SwaggerFormat` which
+converts values with `type: string` and `format: ipv4` to
+`ipaddress.IPv4Address` objects, you should supply the following CLI flags to
+`bravado-types` to ensure the correct type annotations:
+
+    --custom-format string:ipv4:ipaddress.IPv4Address
+    --custom-format-package ipaddress
+
+Bravado-types will emit warnings for unknown formats encountered while
+processing the schema.
 
 ### Model inheritance
 

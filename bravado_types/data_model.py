@@ -1,6 +1,6 @@
 """Classes representing typing metadata about a Swagger spec."""
 
-from typing import Any, List, Type
+from typing import Any, List, NewType, Type
 
 from bravado_core.model import Model
 from bravado_core.operation import Operation
@@ -9,31 +9,7 @@ from bravado_core.resource import Resource
 from bravado_core.spec import Spec
 
 
-class TypeInfo:
-    def __init__(self, base_type: str, *outer: str, is_model: bool = False):
-        """
-        :param base_type: Base type string
-        :param outer: Outer layers wrapping the base type, outermost last
-        :param is_model: Whether the base type is a model
-        """
-        self.base_type = base_type
-        self.outer = outer
-        self.is_model = is_model
-
-    def wrap(self, outer: str) -> 'TypeInfo':
-        return TypeInfo(self.base_type, *self.outer, outer,
-                        is_model=self.is_model)
-
-    def __eq__(self, other: Any) -> bool:
-        return (isinstance(other, TypeInfo)
-                and self.base_type == other.base_type
-                and self.outer == other.outer
-                and self.is_model == other.is_model)
-
-    def __repr__(self) -> str:
-        va = ', '.join(map(repr, self.outer)) if self.outer else ''
-        im = ', is_model=True' if self.is_model else ''
-        return f'TypeInfo({self.base_type!r}{va}{im})'
+TypeInfo = NewType('TypeInfo', str)
 
 
 class PropertyInfo:

@@ -1,0 +1,22 @@
+---
+swagger: '2.0'
+info:
+  title: Schema with custom formats
+  version: '1.0'
+paths: {}
+definitions:
+  Example:
+    type: object
+    properties:
+      noFormat:
+        type: string
+      defaultFormat:
+        type: string
+        format: date-time
+      customFormat:
+        type: string
+        format: ipv4
+      unknownFormat:
+        type: string
+        format: unknown
+    required: [noFormat, defaultFormat, customFormat, unknownFormat]

@@ -10,7 +10,7 @@ import mypy.api
 import pytest
 from bravado.client import SwaggerClient
 
-from bravado_types import RenderConfig, generate_module
+from bravado_types import Config, generate_module
 from bravado_types.__main__ import main
 
 TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -74,9 +74,8 @@ def _generate_test_class(name, path, schemas, modules):
                     else:
                         url = f"file://{path}/{schema.schema_file}"
                         swagger_client = SwaggerClient.from_url(url)
-                        render_config = RenderConfig(name=schema.name,
-                                                     path=schema.py_file)
-                        generate_module(swagger_client, render_config)
+                        config = Config(name=schema.name, path=schema.py_file)
+                        generate_module(swagger_client, config)
                 except Exception as e:
                     cls.codegen_errors[schema.py_file] = e
 

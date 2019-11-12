@@ -12,6 +12,13 @@ import bravado_core.operation
 import bravado_core.resource
 import bravado_core.spec
 
+% if config.custom_formats and config.custom_formats.packages:
+# Imports for custom formats
+    % for pkg in config.custom_formats.packages:
+import ${pkg}
+    % endfor
+
+% endif
 __all__ = [
     ${repr(config.client_type)},
 % for resource in spec.resources:
@@ -83,9 +90,9 @@ class ${config.operation_type(operation.name)}(_Operation):
         *,
         % for param in operation.params:
             % if param.required:
-        ${param.name}: ${config.type(param.type)},
+        ${param.name}: ${param.type},
             %else:
-        ${param.name}: ${config.type(param.type)} = None,
+        ${param.name}: ${param.type} = None,
             % endif
         % endfor
         _request_options: typing.Mapping[str, typing.Any] = None,
@@ -95,7 +102,7 @@ class ${config.operation_type(operation.name)}(_Operation):
         typing.Union[
                 % for response in operation.responses:
                     % if response.success:
-                ${config.type(response.type)},  # ${response.status}
+                ${response.type},  # ${response.status}
                     % endif
                 % endfor
         ]
@@ -105,7 +112,7 @@ class ${config.operation_type(operation.name)}(_Operation):
         % elif config.response_types == 'all':
         typing.Union[
             % for response in operation.responses:
-            ${config.type(response.type)},  # ${response.status}
+            ${response.type},  # ${response.status}
             % endfor
         ]
         % else:
@@ -142,9 +149,9 @@ class ${config.model_type(model.name)}(_Model):
     % endif
     % for prop in model.props:
         % if prop.required:
-        ${prop.name}: ${config.type(prop.type)},
+        ${prop.name}: ${prop.type},
         % else:
-        ${prop.name}: ${config.type(prop.type)} = None,
+        ${prop.name}: ${prop.type} = None,
         % endif
     % endfor
     ) -> None:

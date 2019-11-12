@@ -8,34 +8,36 @@ from bravado_core.param import Param, get_param_type_spec
 from bravado_core.resource import Resource
 from bravado_core.spec import Spec
 
+from bravado_types.config import Config
 from bravado_types.data_model import (ModelInfo, OperationInfo, ParameterInfo,
                                       PropertyInfo, ResourceInfo, ResponseInfo,
                                       SpecInfo)
 from bravado_types.types import get_type_info, get_response_type_info
 
 
-def get_spec_info(spec: Spec) -> SpecInfo:
+def get_spec_info(spec: Spec, config: Config) -> SpecInfo:
     """Extract type information for a given spec object."""
-    model_infos = _get_model_infos(spec)
-    resource_infos, operation_infos = _get_resource_infos(spec)
+    model_infos = _get_model_infos(spec, config)
+    resource_infos, operation_infos = _get_resource_infos(spec, config)
     return SpecInfo(spec, model_infos, resource_infos, operation_infos)
 
 
-def _get_model_infos(spec: Spec) -> List[ModelInfo]:
+def _get_model_infos(spec: Spec, config: Config) -> List[ModelInfo]:
     """Extract model type information for a given spec object."""
     return [
-        _get_model_info(spec, name, mclass)
+        _get_model_info(spec, name, mclass, config)
         for name, mclass in sorted(spec.definitions.items())
     ]
 
 
-def _get_model_info(spec: Spec, name: str, mclass: Type[Model]) -> ModelInfo:
+def _get_model_info(spec: Spec, name: str, mclass: Type[Model], config: Config
+                    ) -> ModelInfo:
     """Extract type information for a given model class."""
     required_props = _get_required_props(spec, mclass)
     return ModelInfo(
         mclass, name, mclass._inherits_from,
         [
-            PropertyInfo(pname, get_type_info(spec, pschema),
+            PropertyInfo(pname, get_type_info(spec, pschema, config),
                          required=pname in required_props)
             for pname, pschema in sorted(mclass._properties.items())
         ],
@@ -59,30 +61,32 @@ def _get_required_props(spec: Spec, mclass: Type[Model]) -> Set[str]:
     return required
 
 
-def _get_resource_infos(spec: Spec) -> Tuple[List[ResourceInfo],
-                                             List[OperationInfo]]:
+def _get_resource_infos(spec: Spec, config: Config
+                        ) -> Tuple[List[ResourceInfo], List[OperationInfo]]:
     """Extract resource/operation type information for a given spec object."""
     ops_cache: Dict[str, OperationInfo] = {}
     return [
-        _get_resource_info(spec, name, resource, ops_cache)
+        _get_resource_info(spec, name, resource, ops_cache, config)
         for name, resource in sorted(spec.resources.items())
     ], sorted(ops_cache.values(), key=lambda o: o.name)
 
 
 def _get_resource_info(spec: Spec, name: str, resource: Resource,
-                       ops_cache: Dict[str, OperationInfo]) -> ResourceInfo:
+                       ops_cache: Dict[str, OperationInfo],
+                       config: Config) -> ResourceInfo:
     """Extract type information for a given resource object."""
     return ResourceInfo(
         resource, name,
         [
-            _get_operation_info(spec, oname, operation, ops_cache)
+            _get_operation_info(spec, oname, operation, ops_cache, config)
             for oname, operation in sorted(resource.operations.items())
         ],
     )
 
 
 def _get_operation_info(spec: Spec, name: str, operation: Operation,
-                        ops_cache: Dict[str, OperationInfo]) -> OperationInfo:
+                        ops_cache: Dict[str, OperationInfo],
+                        config: Config) -> OperationInfo:
     """Extract type information for a given operation object."""
     if name in ops_cache:
         oinfo = ops_cache[name]
@@ -92,25 +96,26 @@ def _get_operation_info(spec: Spec, name: str, operation: Operation,
         oinfo = ops_cache[name] = OperationInfo(
             operation, name,
             [
-                _get_parameter_info(spec, pname, param)
+                _get_parameter_info(spec, pname, param, config)
                 for pname, param in sorted(operation.params.items())
             ],
-            _get_operation_response_infos(spec, operation),
+            _get_operation_response_infos(spec, operation, config),
         )
     return oinfo
 
 
-def _get_parameter_info(spec: Spec, name: str, param: Param) -> ParameterInfo:
+def _get_parameter_info(spec: Spec, name: str, param: Param, config: Config
+                        ) -> ParameterInfo:
     """Extract type information for a given parameter."""
-    ptype = get_type_info(spec, get_param_type_spec(param))
+    ptype = get_type_info(spec, get_param_type_spec(param), config)
     return ParameterInfo(param, name, ptype, param.required)
 
 
-def _get_operation_response_infos(spec: Spec, operation: Operation
-                                  ) -> List[ResponseInfo]:
+def _get_operation_response_infos(spec: Spec, operation: Operation,
+                                  config: Config) -> List[ResponseInfo]:
     """Extract response type information for a given operation."""
     oschema = spec.deref(operation.op_spec)
     return [
-        ResponseInfo(status, get_response_type_info(spec, rschema))
+        ResponseInfo(status, get_response_type_info(spec, rschema, config))
         for status, rschema in sorted(oschema["responses"].items())
     ]

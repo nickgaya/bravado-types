@@ -1,11 +1,11 @@
 from argparse import ArgumentParser
 from pathlib import Path
-from typing import NoReturn, Optional, Sequence
+from typing import Dict, NoReturn, Optional, Sequence, Tuple
 
 from bravado.client import SwaggerClient
 
 from bravado_types import generate_module
-from bravado_types.render import (
+from bravado_types.config import (
     DEFAULT_ARRAY_TYPES,
     DEFAULT_CLIENT_TYPE_FORMAT,
     DEFAULT_MODEL_INHERITANCE,
@@ -14,7 +14,8 @@ from bravado_types.render import (
     DEFAULT_RESOURCE_TYPE_FORMAT,
     DEFAULT_RESPONSE_TYPES,
     ArrayTypes,
-    RenderConfig,
+    Config,
+    CustomFormats,
     ResponseTypes,
 )
 
@@ -120,6 +121,20 @@ def main(args: Optional[Sequence[str]] = None, exit: bool = True) -> None:
     )
 
     parser.add_argument(
+        "--custom-format",
+        action='append',
+        default=[],
+        help="Type definition for custom format, given in the format "
+        "<schema_type>:<schema_format>:<python_type>",
+    )
+    parser.add_argument(
+        "--custom-format-package",
+        action='append',
+        default=[],
+        help="Package to import for custom formats",
+    )
+
+    parser.add_argument(
         "--custom-templates-dir",
         default=None,
         help="Directory containing custom Mako templates.",
@@ -134,7 +149,10 @@ def main(args: Optional[Sequence[str]] = None, exit: bool = True) -> None:
     response_types = (ResponseTypes(ns.response_types) if ns.response_types
                       else None)
 
-    render_config = RenderConfig(
+    custom_formats = _custom_formats(ns.custom_format,
+                                     ns.custom_format_package)
+
+    config = Config(
         name=ns.name,
         path=ns.path,
         client_type_format=ns.client_type_format,
@@ -144,10 +162,11 @@ def main(args: Optional[Sequence[str]] = None, exit: bool = True) -> None:
         array_types=array_types,
         response_types=response_types,
         model_inheritance=ns.model_inheritance,
+        custom_formats=custom_formats,
         custom_templates_dir=ns.custom_templates_dir,
     )
 
-    generate_module(client, render_config)
+    generate_module(client, config)
 
 
 def _normalize_url(url_or_path: str) -> str:
@@ -160,6 +179,15 @@ def _normalize_url(url_or_path: str) -> str:
     else:
         path = Path(url_or_path)
         return path.resolve().as_uri()
+
+
+def _custom_formats(custom_formats: Sequence[str],
+                    custom_format_packages: Sequence[str]) -> CustomFormats:
+    format_dict: Dict[Tuple[str, str], str] = {}
+    for custom_format in custom_formats:
+        schema_type, schema_format, python_type = custom_format.split(':', 2)
+        format_dict[schema_type, schema_format] = python_type
+    return CustomFormats(format_dict, custom_format_packages)
 
 
 if __name__ == "__main__":

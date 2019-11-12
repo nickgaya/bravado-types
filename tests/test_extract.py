@@ -1,8 +1,9 @@
 from bravado_core.spec import Spec
 
+from bravado_types.config import Config
 from bravado_types.data_model import (ModelInfo, OperationInfo, ParameterInfo,
                                       PropertyInfo, ResourceInfo, ResponseInfo,
-                                      SpecInfo, TypeInfo)
+                                      SpecInfo)
 from bravado_types.extract import get_spec_info
 
 
@@ -15,7 +16,7 @@ def test_extract_minimal():
         },
         'paths': {},
     })
-    spec_info = get_spec_info(spec)
+    spec_info = get_spec_info(spec, Config(name='Test', path='/tmp/test.py'))
     assert isinstance(spec_info, SpecInfo)
     assert spec_info.spec is spec
     assert spec_info.models == []
@@ -118,15 +119,15 @@ def test_extract_basic():
             },
         },
     })
-    spec_info = get_spec_info(spec)
+    spec_info = get_spec_info(spec, Config(name='Test', path='/tmp/test.py'))
 
     assert spec_info.spec is spec
 
     assert spec_info.models == [
         ModelInfo(spec.definitions['Bar'], 'Bar', [], []),
         ModelInfo(spec.definitions['Foo'], 'Foo', [], [
-            PropertyInfo('foobar', TypeInfo('str'), False),
-            PropertyInfo('id', TypeInfo('int'), True),
+            PropertyInfo('foobar', 'str', False),
+            PropertyInfo('id', 'int', True),
         ]),
     ]
 
@@ -136,23 +137,21 @@ def test_extract_basic():
 
     assert spec_info.operations == [
         OperationInfo(createFoo, 'createFoo', [
-            ParameterInfo(
-                createFoo.params['request'],
-                'request', TypeInfo('Foo', is_model=True), True),
+            ParameterInfo(createFoo.params['request'], 'request', 'FooModel',
+                          True),
         ], [
-            ResponseInfo('204', TypeInfo('None')),
+            ResponseInfo('204', 'None'),
         ]),
         OperationInfo(getBar, 'getBar', [], [
-            ResponseInfo('200', TypeInfo('Bar', 'typing.List[{}]',
-                                         is_model=True)),
+            ResponseInfo('200', 'typing.List[BarModel]'),
         ]),
         OperationInfo(getFoo, 'getFoo', [
-            ParameterInfo(getFoo.params['Header_Param'], 'Header_Param',
-                          TypeInfo('str'), False),
-            ParameterInfo(getFoo.params['id'], 'id', TypeInfo('int'), True),
+            ParameterInfo(getFoo.params['Header_Param'], 'Header_Param', 'str',
+                          False),
+            ParameterInfo(getFoo.params['id'], 'id', 'int', True),
         ], [
-            ResponseInfo('200', TypeInfo('Foo', is_model=True)),
-            ResponseInfo('404', TypeInfo('typing.Any')),
+            ResponseInfo('200', 'FooModel'),
+            ResponseInfo('404', 'typing.Any'),
         ]),
     ]
 
