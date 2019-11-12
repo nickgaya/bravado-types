@@ -5,6 +5,7 @@
 - Move config class to separate module
 - Add support for custom formats
 - Eagerly generate type strings during type extraction phase
+- Record CLI args in generated header comments
 
 ## 0.3.0
 

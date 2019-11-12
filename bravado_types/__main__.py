@@ -1,3 +1,4 @@
+import sys
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import Dict, NoReturn, Optional, Sequence, Tuple
@@ -38,9 +39,11 @@ class _ArgumentParser(ArgumentParser):
 
 
 def main(args: Optional[Sequence[str]] = None, exit: bool = True) -> None:
-    parser = _ArgumentParser(description="Create a module and stub file for "
-                             "Bravado classes generated from a Swagger "
-                             "schema.", exit=exit)
+    """CLI entry point"""
+    parser = _ArgumentParser(
+        prog='bravado-types', exit=exit,
+        description="Create a module and stub file for Bravado classes "
+        "generated from a Swagger schema.")
 
     parser.add_argument(
         "--url",
@@ -166,7 +169,8 @@ def main(args: Optional[Sequence[str]] = None, exit: bool = True) -> None:
         custom_templates_dir=ns.custom_templates_dir,
     )
 
-    generate_module(client, config)
+    generate_module(client, config,
+                    _cli_args=sys.argv[1:] if args is None else args)
 
 
 def _normalize_url(url_or_path: str) -> str:

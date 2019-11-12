@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Iterable, Union
 
 from bravado.client import SwaggerClient
 from bravado_core.spec import Spec
@@ -10,7 +10,8 @@ from bravado_types.render import render
 
 
 def generate_module(client_or_spec: Union[SwaggerClient, Spec],
-                    config: Config) -> None:
+                    config: Config, *, _cli_args: Iterable[str] = None
+                    ) -> None:
     """
     Convenience function for extracting spec info and rendering files.
 
@@ -21,6 +22,6 @@ def generate_module(client_or_spec: Union[SwaggerClient, Spec],
         spec = client_or_spec.swagger_spec
     else:
         spec = client_or_spec
-    metadata = get_metadata(spec)
+    metadata = get_metadata(spec, _cli_args)
     spec_info = get_spec_info(spec, config)
     render(metadata, spec_info, config)
